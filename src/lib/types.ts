@@ -53,6 +53,30 @@ export interface PageResponse<T> {
   last: boolean;
 }
 
+export interface ChatMessage {
+  id: number;
+  senderId: number;
+  senderUsername: string;
+  receiverId: number;
+  receiverUsername: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface Conversation {
+  otherUserId: number;
+  otherUsername: string;
+  lastMessage: string;
+  lastMessageAt: string;
+  unreadCount: number;
+}
+
+export interface SendMessageInput {
+  receiverId: number;
+  message: string;
+}
+
 export interface ApiErrorBody {
   message?: string;
   details?: string[];
