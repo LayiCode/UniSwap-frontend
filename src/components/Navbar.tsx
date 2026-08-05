@@ -3,8 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { api } from "@/lib/api";
 import logo from "@/app/icon.png";
 
 export default function Navbar() {
@@ -12,6 +13,25 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    const fetchCount = () =>
+      api
+        .getUnreadCount()
+        .then((r) => {
+          if (!cancelled) setUnread(r.count);
+        })
+        .catch(() => {});
+    fetchCount();
+    const interval = setInterval(fetchCount, 15000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [user]);
 
   const linkClass = (href: string) =>
     `rounded-md px-3 py-2 text-sm font-medium transition-colors ${
@@ -50,6 +70,16 @@ export default function Navbar() {
             {user && (
               <Link href="/my-listings" className={linkClass("/my-listings")}>
                 My Listings
+              </Link>
+            )}
+            {user && (
+              <Link href="/messages" className={linkClass("/messages")}>
+                Messages
+                {unread > 0 && (
+                  <span className="ml-1.5 rounded-full bg-brand-600 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
+                    {unread}
+                  </span>
+                )}
               </Link>
             )}
           </div>
@@ -148,6 +178,18 @@ export default function Navbar() {
                 className={linkClass("/my-listings")}
               >
                 My Listings
+              </Link>
+              <Link
+                href="/messages"
+                onClick={() => setMenuOpen(false)}
+                className={linkClass("/messages")}
+              >
+                Messages
+                {unread > 0 && (
+                  <span className="ml-1.5 rounded-full bg-brand-600 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
+                    {unread}
+                  </span>
+                )}
               </Link>
               <button
                 onClick={handleLogout}
