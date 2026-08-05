@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import logo from "@/app/icon.png";
 
 export default function Navbar() {
   const { user, loading, logout } = useAuth();
@@ -29,9 +31,14 @@ export default function Navbar() {
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-emerald-600 text-sm font-bold text-white">
-              U
-            </span>
+            <Image
+              src={logo}
+              alt="UniSwap logo"
+              width={32}
+              height={32}
+              className="size-8 rounded-lg object-cover"
+              priority
+            />
             <span className="text-lg font-semibold tracking-tight">
               UniSwap
             </span>
@@ -54,7 +61,7 @@ export default function Navbar() {
               <Link
                 href="/products/new"
                 onClick={() => setMenuOpen(false)}
-                className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+                className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
               >
                 Sell Item
               </Link>

@@ -113,7 +113,7 @@ export default function RegisterForm() {
     }
     if (usernameCheck && usernameCheck.username === trimmed) {
       return usernameCheck.status === "available"
-        ? { text: "Username available", className: "text-emerald-600" }
+        ? { text: "Username available", className: "text-brand-600" }
         : { text: "Username is already taken", className: "text-red-600" };
     }
     return { text: "Checking availability…", className: "text-neutral-500" };
@@ -208,7 +208,7 @@ export default function RegisterForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-lg bg-brand-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? "Creating account…" : "Sign up"}
         </button>
@@ -226,7 +226,7 @@ export default function RegisterForm() {
         Already have an account?{" "}
         <Link
           href={`/login${redirect !== "/" ? `?redirect=${encodeURIComponent(redirect)}` : ""}`}
-          className="font-medium text-emerald-700 hover:underline"
+          className="font-medium text-brand-700 hover:underline"
         >
           Log in
         </Link>

@@ -89,7 +89,7 @@ export default function VerifyEmailForm() {
         </label>
 
         {message && (
-          <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <p className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm text-brand-700">
             {message}
           </p>
         )}
@@ -103,7 +103,7 @@ export default function VerifyEmailForm() {
           <button
             type="submit"
             disabled={submitting || code.length !== 6}
-            className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-brand-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Verifying…" : "Verify email"}
           </button>
@@ -124,7 +124,7 @@ export default function VerifyEmailForm() {
           type="button"
           disabled={resending}
           onClick={resendCode}
-          className="mt-6 w-full text-center text-sm font-medium text-emerald-700 hover:underline disabled:opacity-50"
+          className="mt-6 w-full text-center text-sm font-medium text-brand-700 hover:underline disabled:opacity-50"
         >
           {resending ? "Resending…" : "Resend code"}
         </button>
@@ -134,7 +134,7 @@ export default function VerifyEmailForm() {
         Already verified?{" "}
         <Link
           href={`/login${redirect !== "/" ? `?redirect=${encodeURIComponent(redirect)}` : ""}`}
-          className="font-medium text-emerald-700 hover:underline"
+          className="font-medium text-brand-700 hover:underline"
         >
           Log in
         </Link>

@@ -45,7 +45,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <h3 className="line-clamp-2 font-medium text-neutral-900">
           {product.title}
         </h3>
-        <p className="mt-auto pt-2 text-lg font-semibold text-emerald-700">
+        <p className="mt-auto pt-2 text-lg font-semibold text-brand-700">
           {formatPrice(product.price)}
         </p>
         <p className="text-xs text-neutral-500">by {product.sellerUsername}</p>

@@ -57,7 +57,7 @@ export default function MyListings() {
         </div>
         <Link
           href="/products/new"
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-brand-700"
         >
           + Sell an item
         </Link>
@@ -95,7 +95,7 @@ export default function MyListings() {
           </p>
           <Link
             href="/products/new"
-            className="mt-6 inline-block rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="mt-6 inline-block rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
           >
             Sell an item
           </Link>

@@ -10,6 +10,20 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* UniSwap brand palette — derived from the logo (#0050E0 vivid blue on
+     navy #001050/#002070 accents). Use brand-600 for primary actions. */
+  --color-brand-50: #ebf2ff;
+  --color-brand-100: #d6e5ff;
+  --color-brand-200: #adc8ff;
+  --color-brand-300: #84a9ff;
+  --color-brand-400: #4a7fff;
+  --color-brand-500: #1a66f0;
+  --color-brand-600: #0050e0;
+  --color-brand-700: #0040b5;
+  --color-brand-800: #003285;
+  --color-brand-900: #002050;
+  --color-brand-950: #001040;
 }
 
 body {

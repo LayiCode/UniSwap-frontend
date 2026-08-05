@@ -155,7 +155,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-brand-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Logging in…" : "Log in"}
           </button>
@@ -184,7 +184,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-brand-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Sending code…" : "Send login code"}
           </button>
@@ -219,7 +219,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={submitting || code.length !== 6}
-            className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-brand-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Signing in…" : "Verify and log in"}
           </button>
@@ -239,7 +239,7 @@ export default function LoginForm() {
                   setResending(false);
                 }
               }}
-              className="font-medium text-emerald-700 hover:underline disabled:opacity-50"
+              className="font-medium text-brand-700 hover:underline disabled:opacity-50"
             >
               {resending ? "Resending…" : "Resend code"}
             </button>
@@ -264,7 +264,7 @@ export default function LoginForm() {
       <p className="mt-6 text-center text-sm text-neutral-500">
         <Link
           href="/forgot-password"
-          className="font-medium text-emerald-700 hover:underline"
+          className="font-medium text-brand-700 hover:underline"
         >
           Forgot your password?
         </Link>
@@ -272,7 +272,7 @@ export default function LoginForm() {
         New to UniSwap?{" "}
         <Link
           href={`/register${redirect !== "/" ? `?redirect=${encodeURIComponent(redirect)}` : ""}`}
-          className="font-medium text-emerald-700 hover:underline"
+          className="font-medium text-brand-700 hover:underline"
         >
           Create an account
         </Link>

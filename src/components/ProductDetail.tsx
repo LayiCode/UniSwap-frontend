@@ -120,7 +120,7 @@ export default function ProductDetail({ id }: { id: string }) {
         <h1 className="text-2xl font-semibold tracking-tight">
           {product.title}
         </h1>
-        <p className="text-3xl font-bold text-emerald-700">
+        <p className="text-3xl font-bold text-brand-700">
           {formatPrice(product.price)}
         </p>
 
@@ -182,11 +182,11 @@ export default function ProductDetail({ id }: { id: string }) {
         {!user && (
           <p className="mt-auto border-t border-neutral-200 pt-4 text-sm text-neutral-500">
             Want to sell or buy like this?{" "}
-            <Link href="/login" className="font-medium text-emerald-700 hover:underline">
+            <Link href="/login" className="font-medium text-brand-700 hover:underline">
               Log in
             </Link>{" "}
             or{" "}
-            <Link href="/register" className="font-medium text-emerald-700 hover:underline">
+            <Link href="/register" className="font-medium text-brand-700 hover:underline">
               sign up
             </Link>
             .
