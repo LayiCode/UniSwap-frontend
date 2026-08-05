@@ -1,10 +1,13 @@
 import type {
   AuthConfig,
   AuthResponse,
+  ChatMessage,
+  Conversation,
   PageResponse,
   Product,
   ProductInput,
   RegisterResponse,
+  SendMessageInput,
   UserResponse,
   ApiErrorBody,
 } from "./types";
@@ -242,5 +245,24 @@ export const api = {
 
   deleteProduct(id: number | string): Promise<void> {
     return request(`/products/${id}`, { method: "DELETE" });
+  },
+
+  getConversations(): Promise<Conversation[]> {
+    return request("/chat/conversations");
+  },
+
+  getMessages(withUserId: number): Promise<ChatMessage[]> {
+    return request(`/chat/messages?with=${withUserId}`);
+  },
+
+  sendMessage(data: SendMessageInput): Promise<ChatMessage> {
+    return request("/chat/messages", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  getUnreadCount(): Promise<{ count: number }> {
+    return request("/chat/unread-count");
   },
 };
