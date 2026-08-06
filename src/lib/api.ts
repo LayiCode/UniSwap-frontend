@@ -113,6 +113,10 @@ export function formatDate(iso: string): string {
 export interface ProductQuery {
   search?: string;
   category?: string;
+  condition?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: "newest" | "price_asc" | "price_desc";
   page?: number;
   size?: number;
 }
@@ -202,6 +206,10 @@ export const api = {
     const params = new URLSearchParams();
     if (query.search) params.set("search", query.search);
     if (query.category) params.set("category", query.category);
+    if (query.condition) params.set("condition", query.condition);
+    if (query.minPrice !== undefined) params.set("minPrice", String(query.minPrice));
+    if (query.maxPrice !== undefined) params.set("maxPrice", String(query.maxPrice));
+    if (query.sort && query.sort !== "newest") params.set("sort", query.sort);
     if (query.page !== undefined) params.set("page", String(query.page));
     if (query.size !== undefined) params.set("size", String(query.size));
     const qs = params.toString();
