@@ -73,6 +73,11 @@ export default function Navbar() {
               </Link>
             )}
             {user && (
+              <Link href="/favorites" className={linkClass("/favorites")}>
+                Favorites
+              </Link>
+            )}
+            {user && (
               <Link href="/messages" className={linkClass("/messages")}>
                 Messages
                 {unread > 0 && (
@@ -178,6 +183,13 @@ export default function Navbar() {
                 className={linkClass("/my-listings")}
               >
                 My Listings
+              </Link>
+              <Link
+                href="/favorites"
+                onClick={() => setMenuOpen(false)}
+                className={linkClass("/favorites")}
+              >
+                Favorites
               </Link>
               <Link
                 href="/messages"

@@ -139,7 +139,6 @@ export default function RegisterForm() {
             autoComplete="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Choose a unique username"
             className={inputClass}
           />
           {hint && (
@@ -148,14 +147,13 @@ export default function RegisterForm() {
         </label>
 
         <label className="block text-sm font-medium text-neutral-700">
-          Email
+          Campus email
           <input
             type="email"
             required
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Your campus email"
             className={inputClass}
           />
         </label>
@@ -168,7 +166,6 @@ export default function RegisterForm() {
             autoComplete="tel"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
-            placeholder="Your phone number"
             className={inputClass}
           />
         </label>
@@ -182,7 +179,6 @@ export default function RegisterForm() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 8 characters"
             />
           </label>
 
@@ -194,7 +190,6 @@ export default function RegisterForm() {
               autoComplete="new-password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              placeholder="Repeat your password"
             />
           </label>
         </div>

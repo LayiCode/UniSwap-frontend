@@ -123,14 +123,13 @@ export default function LoginForm() {
       {mode === "password" ? (
         <form onSubmit={submitPassword} className="mt-8 space-y-5">
           <label className="block text-sm font-medium text-neutral-700">
-            Email
+            Campus email
             <input
               type="email"
               required
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your campus email"
               className={inputClass}
             />
           </label>
@@ -142,7 +141,6 @@ export default function LoginForm() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your password"
             />
           </label>
 
@@ -163,14 +161,13 @@ export default function LoginForm() {
       ) : !codeSent ? (
         <form onSubmit={requestCode} className="mt-8 space-y-5">
           <label className="block text-sm font-medium text-neutral-700">
-            Email
+            Campus email
             <input
               type="email"
               required
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your campus email"
               className={inputClass}
             />
           </label>
@@ -204,7 +201,6 @@ export default function LoginForm() {
               autoComplete="one-time-code"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-              placeholder="6-digit code"
               maxLength={6}
               className={`${inputClass} tracking-widest`}
             />

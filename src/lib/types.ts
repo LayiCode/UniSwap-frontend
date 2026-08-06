@@ -34,6 +34,7 @@ export interface Product {
   sellerId: number;
   sellerUsername: string;
   createdAt: string;
+  favorited: boolean;
 }
 
 export interface ProductInput {

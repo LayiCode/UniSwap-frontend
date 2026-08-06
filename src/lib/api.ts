@@ -224,6 +224,18 @@ export const api = {
     return request(`/products/my-listings?page=${page}&size=${size}`);
   },
 
+  getFavorites(page = 0, size = 12): Promise<PageResponse<Product>> {
+    return request(`/favorites?page=${page}&size=${size}`);
+  },
+
+  addFavorite(productId: number | string): Promise<void> {
+    return request(`/favorites/${productId}`, { method: "POST" });
+  },
+
+  removeFavorite(productId: number | string): Promise<void> {
+    return request(`/favorites/${productId}`, { method: "DELETE" });
+  },
+
   createProduct(data: ProductInput): Promise<Product> {
     return request("/products", {
       method: "POST",
