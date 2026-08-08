@@ -4,6 +4,7 @@ export interface UserResponse {
   email: string;
   phoneNumber: string;
   emailVerified: boolean;
+  admin: boolean;
   createdAt: string;
 }
 
@@ -29,12 +30,13 @@ export interface Product {
   price: number;
   category: string;
   itemCondition: string;
-  status: "AVAILABLE" | "SOLD" | string;
+  status: "AVAILABLE" | "SOLD" | "REMOVED" | string;
   imageUrl: string | null;
   sellerId: number;
   sellerUsername: string;
   createdAt: string;
   favorited: boolean;
+  purchaseRequested?: boolean;
 }
 
 export interface ProductInput {
@@ -76,6 +78,61 @@ export interface Conversation {
 export interface SendMessageInput {
   receiverId: number;
   message: string;
+}
+
+export type PurchaseRequestStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "CANCELLED";
+
+export interface PurchaseRequest {
+  id: number;
+  productId: number;
+  productTitle: string;
+  productImageUrl: string | null;
+  productPrice: number;
+  productStatus: string;
+  sellerId: number;
+  sellerUsername: string;
+  buyerId: number;
+  buyerUsername: string;
+  message: string | null;
+  status: PurchaseRequestStatus;
+  createdAt: string;
+  decidedAt: string | null;
+}
+
+export interface CreatePurchaseRequestInput {
+  productId: number;
+  message?: string;
+}
+
+export type ReportReason = "SPAM" | "INAPPROPRIATE" | "SCAM" | "DUPLICATE" | "OTHER";
+export type ReportStatus = "OPEN" | "RESOLVED" | "DISMISSED";
+
+export interface Report {
+  id: number;
+  productId: number;
+  productTitle: string;
+  productImageUrl: string | null;
+  productPrice: number;
+  productStatus: string;
+  sellerId: number;
+  sellerUsername: string;
+  reporterId: number;
+  reporterUsername: string;
+  reason: ReportReason;
+  details: string | null;
+  status: ReportStatus;
+  createdAt: string;
+}
+
+export interface CreateReportInput {
+  productId: number;
+  reason: ReportReason;
+  details?: string;
+}
+
+export interface UpdateReportStatusInput {
+  status: ReportStatus;
+  removeProduct?: boolean;
 }
 
 export interface ApiErrorBody {

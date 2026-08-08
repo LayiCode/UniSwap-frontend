@@ -3,11 +3,17 @@ import type {
   AuthResponse,
   ChatMessage,
   Conversation,
+  CreatePurchaseRequestInput,
+  CreateReportInput,
   PageResponse,
   Product,
   ProductInput,
+  PurchaseRequest,
   RegisterResponse,
+  Report,
+  ReportStatus,
   SendMessageInput,
+  UpdateReportStatusInput,
   UserResponse,
   ApiErrorBody,
 } from "./types";
@@ -284,5 +290,58 @@ export const api = {
 
   getUnreadCount(): Promise<{ count: number }> {
     return request("/chat/unread-count");
+  },
+
+  // ── Purchase requests ────────────────────────────────────────────────
+  // scope: "received" = requests on my listings (seller view, default),
+  //        "sent"     = requests I made (buyer view).
+  createPurchaseRequest(data: CreatePurchaseRequestInput): Promise<PurchaseRequest> {
+    return request("/purchases", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  getPurchaseRequests(
+    scope: "received" | "sent" = "received",
+    page = 0,
+    size = 12,
+  ): Promise<PageResponse<PurchaseRequest>> {
+    return request(`/purchases?scope=${scope}&page=${page}&size=${size}`);
+  },
+
+  acceptPurchaseRequest(id: number | string): Promise<PurchaseRequest> {
+    return request(`/purchases/${id}/accept`, { method: "POST" });
+  },
+
+  declinePurchaseRequest(id: number | string): Promise<PurchaseRequest> {
+    return request(`/purchases/${id}/decline`, { method: "POST" });
+  },
+
+  cancelPurchaseRequest(id: number | string): Promise<PurchaseRequest> {
+    return request(`/purchases/${id}/cancel`, { method: "POST" });
+  },
+
+  // ── Reports & moderation (queue is admin-only) ──────────────────────
+  createReport(data: CreateReportInput): Promise<Report> {
+    return request("/reports", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  getReports(status?: ReportStatus, page = 0, size = 20): Promise<PageResponse<Report>> {
+    const params = new URLSearchParams();
+    if (status) params.set("status", status);
+    params.set("page", String(page));
+    params.set("size", String(size));
+    return request(`/reports?${params.toString()}`);
+  },
+
+  updateReportStatus(id: number | string, data: UpdateReportStatusInput): Promise<Report> {
+    return request(`/reports/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
   },
 };

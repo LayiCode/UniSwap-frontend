@@ -48,6 +48,11 @@ export default function ProductCard({
               SOLD
             </span>
           )}
+          {product.status === "REMOVED" && (
+            <span className="absolute left-2 top-2 rounded bg-red-700 px-2 py-0.5 text-xs font-semibold text-white">
+              REMOVED
+            </span>
+          )}
         </div>
         <div className="flex flex-1 flex-col gap-1 p-4">
           <div className="flex items-center justify-between gap-2">
