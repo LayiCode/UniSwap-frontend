@@ -8,7 +8,9 @@ const backend =
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  output: "standalone",
+  // Standalone output is for the Docker image; on Vercel it breaks the build
+  // finalizer (missing .nft.json trace files), so let Vercel build normally.
+  output: process.env.VERCEL ? undefined : "standalone",
   async rewrites() {
     return [
       {
