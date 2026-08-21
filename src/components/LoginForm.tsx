@@ -189,7 +189,8 @@ export default function LoginForm() {
       ) : (
         <form onSubmit={verifyCode} className="mt-8 space-y-5">
           <p className="text-sm text-neutral-500">
-            We emailed a 6-digit code to <strong>{email.trim()}</strong>.
+            We emailed a 6-digit code to <strong>{email.trim()}</strong>. Gmail
+            users: also check the Promotions and Spam tabs.
           </p>
 
           <label className="block text-sm font-medium text-neutral-700">
