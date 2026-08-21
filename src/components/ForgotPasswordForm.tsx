@@ -64,7 +64,7 @@ export default function ForgotPasswordForm() {
       </h1>
       <p className="mt-1 text-sm text-neutral-500">
         {codeSent
-          ? "Enter the reset code we emailed you, then set a new password. Gmail users: also check the Promotions and Spam tabs."
+          ? "Enter the reset code we emailed you, then set a new password."
           : "We&apos;ll email you a one-time code to reset it."}
       </p>
 

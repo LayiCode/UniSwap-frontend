@@ -56,8 +56,7 @@ export default function VerifyEmailForm() {
         Verify your email
       </h1>
       <p className="mt-1 text-sm text-neutral-500">
-        Enter the 6-digit code we emailed you to activate your account. Gmail
-        users: also check the Promotions and Spam tabs.
+        Enter the 6-digit code we emailed you to activate your account.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
