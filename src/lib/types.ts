@@ -32,6 +32,9 @@ export interface Product {
   itemCondition: string;
   status: "AVAILABLE" | "SOLD" | "REMOVED" | string;
   imageUrl: string | null;
+  // All photos in display order (index 0 = the cover). Only present on
+  // detail lookups; list endpoints return null and imageUrl is the fallback.
+  imageUrls?: string[] | null;
   sellerId: number;
   sellerUsername: string;
   createdAt: string;

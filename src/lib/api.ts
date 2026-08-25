@@ -265,6 +265,15 @@ export const api = {
     });
   },
 
+  uploadImages(id: number | string, files: File[]): Promise<Product> {
+    const form = new FormData();
+    files.forEach((file) => form.append("files", file));
+    return request(`/products/${id}/images`, {
+      method: "POST",
+      body: form,
+    });
+  },
+
   markSold(id: number | string): Promise<Product> {
     return request(`/products/${id}/sold`, { method: "PATCH" });
   },

@@ -16,6 +16,8 @@ export default function ProductDetail({ id }: { id: string }) {
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Selected photo in the gallery; reset whenever a listing loads.
+  const [imgIndex, setImgIndex] = useState(0);
 
   // Request-to-buy state
   const [buyMessage, setBuyMessage] = useState("");
@@ -38,7 +40,10 @@ export default function ProductDetail({ id }: { id: string }) {
     api
       .getProduct(id)
       .then((p) => {
-        if (!cancelled) setProduct(p);
+        if (!cancelled) {
+          setImgIndex(0);
+          setProduct(p);
+        }
       })
       .catch((err) => {
         if (!cancelled)
@@ -54,7 +59,12 @@ export default function ProductDetail({ id }: { id: string }) {
   }, [id]);
 
   const isOwner = !!user && product?.sellerId === user.id;
-  const img = imageUrl(product?.imageUrl);
+  const gallery: string[] = product?.imageUrls?.length
+    ? product.imageUrls
+    : product?.imageUrl
+      ? [product.imageUrl]
+      : [];
+  const activeImg = imageUrl(gallery[Math.min(imgIndex, gallery.length - 1)]);
 
   const markSold = async () => {
     if (!product || !window.confirm("Mark this listing as sold?")) return;
@@ -140,35 +150,67 @@ export default function ProductDetail({ id }: { id: string }) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-2">
-      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100">
-        {img ? (
-          <Image
-            src={img}
-            alt={product.title}
-            fill
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-cover"
+      <div>
+        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100">
+          {activeImg ? (
+            <Image
+              src={activeImg}
+              alt={gallery.length > 1 ? `${product.title} (photo ${imgIndex + 1} of ${gallery.length})` : product.title}
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover"
+            />
+          ) : (
+            <div className="grid size-full place-items-center text-6xl text-neutral-300">
+              📦
+            </div>
+          )}
+          {product.status === "SOLD" && (
+            <span className="absolute left-3 top-3 rounded-lg bg-neutral-900 px-3 py-1 text-sm font-semibold text-white">
+              SOLD
+            </span>
+          )}
+          {product.status === "REMOVED" && (
+            <span className="absolute left-3 top-3 rounded-lg bg-red-700 px-3 py-1 text-sm font-semibold text-white">
+              REMOVED
+            </span>
+          )}
+          <FavoriteButton
+            productId={product.id}
+            favorited={product.favorited}
+            className="absolute right-3 top-3 z-10"
           />
-        ) : (
-          <div className="grid size-full place-items-center text-6xl text-neutral-300">
-            📦
+        </div>
+
+        {gallery.length > 1 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {gallery.map((src, i) => {
+              const thumb = imageUrl(src);
+              if (!thumb) return null;
+              return (
+                <button
+                  key={src}
+                  type="button"
+                  onClick={() => setImgIndex(i)}
+                  aria-label={`Show photo ${i + 1}`}
+                  className={`relative h-16 w-16 overflow-hidden rounded-lg border-2 transition-colors ${
+                    i === imgIndex
+                      ? "border-brand-600"
+                      : "border-neutral-200 opacity-70 hover:opacity-100"
+                  }`}
+                >
+                  <Image
+                    src={thumb}
+                    alt=""
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                </button>
+              );
+            })}
           </div>
         )}
-        {product.status === "SOLD" && (
-          <span className="absolute left-3 top-3 rounded-lg bg-neutral-900 px-3 py-1 text-sm font-semibold text-white">
-            SOLD
-          </span>
-        )}
-        {product.status === "REMOVED" && (
-          <span className="absolute left-3 top-3 rounded-lg bg-red-700 px-3 py-1 text-sm font-semibold text-white">
-            REMOVED
-          </span>
-        )}
-        <FavoriteButton
-          productId={product.id}
-          favorited={product.favorited}
-          className="absolute right-3 top-3 z-10"
-        />
       </div>
 
       <div className="flex flex-col gap-4">

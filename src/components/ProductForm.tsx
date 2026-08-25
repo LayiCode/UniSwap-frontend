@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { api, imageUrl } from "@/lib/api";
 import { CATEGORIES, CONDITIONS } from "@/lib/constants";
 import type { Product, ProductInput } from "@/lib/types";
+
+const MAX_IMAGES = 5;
 
 export const inputClass =
   "mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20";
@@ -45,12 +47,49 @@ export default function ProductForm({
   const [itemCondition, setItemCondition] = useState(
     product?.itemCondition ?? ""
   );
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const preview = file ? URL.createObjectURL(file) : null;
-  const existingImage = imageUrl(product?.imageUrl);
+  // Object URLs for the newly picked files; revoked whenever the selection
+  // changes or the form unmounts so blobs don't leak.
+  const newPreviews = useMemo(
+    () =>
+      files.map((f) => ({
+        name: f.name,
+        url: URL.createObjectURL(f),
+      })),
+    [files]
+  );
+  useEffect(
+    () => () => {
+      newPreviews.forEach((p) => URL.revokeObjectURL(p.url));
+    },
+    [newPreviews]
+  );
+
+  // Photos already stored on the server (edit mode only).
+  const existingImages: string[] = useMemo(() => {
+    if (!product) return [];
+    if (product.imageUrls && product.imageUrls.length > 0)
+      return product.imageUrls;
+    return product.imageUrl ? [product.imageUrl] : [];
+  }, [product]);
+
+  function addFiles(selected: FileList | null) {
+    if (!selected) return;
+    const combined = [...files, ...Array.from(selected)];
+    if (combined.length > MAX_IMAGES) {
+      setError(`A listing can have at most ${MAX_IMAGES} images`);
+      return;
+    }
+    setError(null);
+    setFiles(combined);
+  }
+
+  function removeNewFile(index: number) {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -75,10 +114,10 @@ export default function ProductForm({
       let saved: Product;
       if (product) {
         saved = await api.updateProduct(product.id, payload);
-        if (file) saved = await api.uploadImage(product.id, file);
+        if (files.length > 0) saved = await api.uploadImages(product.id, files);
       } else {
         saved = await api.createProduct(payload);
-        if (file) saved = await api.uploadImage(saved.id, file);
+        if (files.length > 0) saved = await api.uploadImages(saved.id, files);
       }
       onSaved(saved);
     } catch (err) {
@@ -92,27 +131,87 @@ export default function ProductForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {(preview || existingImage) && (
-        <div className="relative aspect-[4/3] w-full max-w-sm overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100">
-          <Image
-            src={preview ?? existingImage!}
-            alt="Listing preview"
-            fill
-            sizes="(max-width: 640px) 100vw, 384px"
-            className="object-cover"
-          />
+      {existingImages.length > 0 && (
+        <div>
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-400">
+            Current photos
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {existingImages.map((src, i) => (
+              <div
+                key={src}
+                className="relative h-24 w-24 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100"
+              >
+                <Image
+                  src={imageUrl(src) ?? ""}
+                  alt={i === 0 ? "Cover photo" : `Photo ${i + 1}`}
+                  fill
+                  sizes="96px"
+                  className="object-cover"
+                />
+                {i === 0 && (
+                  <span className="absolute bottom-0 left-0 right-0 bg-black/60 px-1 py-0.5 text-center text-[10px] font-medium text-white">
+                    Cover
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      <Field label="Image" required={!existingImage}>
+      {newPreviews.length > 0 && (
+        <div>
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-400">
+            New photos
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {newPreviews.map((p, i) => (
+              <div
+                key={p.url}
+                className="relative h-24 w-24 overflow-hidden rounded-lg border border-brand-300 bg-neutral-100"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.url}
+                  alt={p.name}
+                  className="h-full w-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeNewFile(i)}
+                  aria-label={`Remove ${p.name}`}
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-xs font-bold text-white hover:bg-red-600"
+                >
+                  ×
+                </button>
+                {existingImages.length === 0 && i === 0 && (
+                  <span className="absolute bottom-0 left-0 right-0 bg-black/60 px-1 py-0.5 text-center text-[10px] font-medium text-white">
+                    Cover
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Field label={`Photos (up to ${MAX_IMAGES})`} required={existingImages.length + files.length === 0}>
         <input
           type="file"
           accept="image/jpeg,image/png,image/webp"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          multiple
+          onChange={(e) => {
+            addFiles(e.target.files);
+            e.target.value = "";
+          }}
+          disabled={existingImages.length + files.length >= MAX_IMAGES}
           className="mt-1 block w-full text-sm text-neutral-500 file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-neutral-700"
         />
         <p className="mt-1 text-xs text-neutral-400">
-          JPEG, PNG or WEBP up to 5MB{existingImage && " — a new file replaces the current image"}
+          JPEG, PNG or WEBP up to 5MB each.
+          {product &&
+            " Uploading new photos replaces ALL current photos on this listing."}
         </p>
       </Field>
 
