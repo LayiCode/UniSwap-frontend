@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
   // Standalone output is for the Docker image; on Vercel it breaks the build
   // finalizer (missing .nft.json trace files), so let Vercel build normally.
   output: process.env.VERCEL ? undefined : "standalone",
+  images: {
+    remotePatterns: [
+      // Production uploads are stored in Supabase Storage and served from
+      // external URLs (https://<project>.supabase.co/...). Whitelist the host
+      // so next/image can load listing photos instead of showing placeholders.
+      { protocol: "https", hostname: "**.supabase.co" },
+    ],
+  },
   async rewrites() {
     return [
       {

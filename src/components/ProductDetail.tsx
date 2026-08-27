@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import type { Product, ReportReason } from "@/lib/types";
 import { Loading } from "@/components/RequireAuth";
 import FavoriteButton from "@/components/FavoriteButton";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 export default function ProductDetail({ id }: { id: string }) {
   const { user } = useAuth();
@@ -18,6 +19,9 @@ export default function ProductDetail({ id }: { id: string }) {
   const [busy, setBusy] = useState(false);
   // Selected photo in the gallery; reset whenever a listing loads.
   const [imgIndex, setImgIndex] = useState(0);
+
+  // This listing about to be marked sold or deleted, awaiting confirmation.
+  const [confirming, setConfirming] = useState<"sold" | "delete" | null>(null);
 
   // Request-to-buy state
   const [buyMessage, setBuyMessage] = useState("");
@@ -67,11 +71,12 @@ export default function ProductDetail({ id }: { id: string }) {
   const activeImg = imageUrl(gallery[Math.min(imgIndex, gallery.length - 1)]);
 
   const markSold = async () => {
-    if (!product || !window.confirm("Mark this listing as sold?")) return;
+    if (!product) return;
     setBusy(true);
     try {
       const updated = await api.markSold(product.id);
       setProduct(updated);
+      setConfirming(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update listing");
     } finally {
@@ -80,7 +85,7 @@ export default function ProductDetail({ id }: { id: string }) {
   };
 
   const remove = async () => {
-    if (!product || !window.confirm("Delete this listing permanently?")) return;
+    if (!product) return;
     setBusy(true);
     try {
       await api.deleteProduct(product.id);
@@ -88,6 +93,7 @@ export default function ProductDetail({ id }: { id: string }) {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not delete listing");
       setBusy(false);
+      setConfirming(null);
     }
   };
 
@@ -382,7 +388,7 @@ export default function ProductDetail({ id }: { id: string }) {
               </Link>
               {product.status !== "SOLD" && (
                 <button
-                  onClick={markSold}
+                  onClick={() => setConfirming("sold")}
                   disabled={busy}
                   className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
                 >
@@ -390,7 +396,7 @@ export default function ProductDetail({ id }: { id: string }) {
                 </button>
               )}
               <button
-                onClick={remove}
+                onClick={() => setConfirming("delete")}
                 disabled={busy}
                 className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
               >
@@ -399,6 +405,26 @@ export default function ProductDetail({ id }: { id: string }) {
             </div>
           </div>
         )}
+
+        <ConfirmDialog
+          open={confirming === "sold"}
+          title="Mark as sold"
+          message="Mark this listing as sold? This can't be undone."
+          confirmLabel={busy ? "Marking…" : "Mark as sold"}
+          busy={busy}
+          onConfirm={markSold}
+          onCancel={() => setConfirming(null)}
+        />
+        <ConfirmDialog
+          open={confirming === "delete"}
+          title="Delete listing"
+          message="Delete this listing permanently? This can't be undone."
+          confirmLabel={busy ? "Deleting…" : "Delete"}
+          busy={busy}
+          danger
+          onConfirm={remove}
+          onCancel={() => setConfirming(null)}
+        />
 
         {!user && (
           <p className="mt-auto border-t border-neutral-200 pt-4 text-sm text-neutral-500">
