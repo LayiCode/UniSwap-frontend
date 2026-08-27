@@ -70,6 +70,7 @@ export default function RegisterForm() {
 
     const trimmedUsername = username.trim();
     if (
+      trimmedUsername &&
       usernameCheck &&
       usernameCheck.username === trimmedUsername &&
       usernameCheck.status === "taken"
@@ -81,7 +82,7 @@ export default function RegisterForm() {
       setError("Passwords do not match");
       return;
     }
-    if (isPasswordSimilarToUsername(username, password)) {
+    if (trimmedUsername && isPasswordSimilarToUsername(trimmedUsername, password)) {
       setError("Password must not be the same as or too similar to your username");
       return;
     }
@@ -89,7 +90,7 @@ export default function RegisterForm() {
     setSubmitting(true);
     try {
       const res = await api.register({
-        username: username.trim(),
+        username: trimmedUsername,
         email: email.trim(),
         phoneNumber: phoneNumber.trim(),
         password,
@@ -110,7 +111,9 @@ export default function RegisterForm() {
 
   function usernameHint(): { text: string; className: string } | null {
     const trimmed = username.trim();
-    if (trimmed.length === 0) return null;
+    if (trimmed.length === 0) {
+      return { text: "Optional — you can pick one later", className: "text-neutral-500" };
+    }
     if (trimmed.length < 3) {
       return { text: "At least 3 characters", className: "text-neutral-500" };
     }
@@ -136,8 +139,6 @@ export default function RegisterForm() {
           Username
           <input
             type="text"
-            required
-            minLength={3}
             maxLength={30}
             autoComplete="username"
             value={username}
@@ -145,7 +146,7 @@ export default function RegisterForm() {
             className={inputClass}
           />
           {hint && (
-            <span className={`mt-1 block text-xs ${hint.className}`}>{hint.text}</span>
+            <span className="mt-1 block text-xs">{hint.text}</span>
           )}
         </label>
 
