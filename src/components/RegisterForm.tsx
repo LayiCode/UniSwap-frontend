@@ -88,16 +88,19 @@ export default function RegisterForm() {
 
     setSubmitting(true);
     try {
-      await api.register({
+      const res = await api.register({
         username: username.trim(),
         email: email.trim(),
         phoneNumber: phoneNumber.trim(),
         password,
       });
-      // No session yet — the account must be email-verified first.
-      router.push(
-        `/verify-email?email=${encodeURIComponent(email.trim())}${redirect !== "/" ? `&redirect=${encodeURIComponent(redirect)}` : ""}`
-      );
+      // No session yet — the account must be email-verified first. If the code
+      // couldn't be emailed, carry it along so the verify page can show it.
+      const code = res.verificationCode ?? null;
+      let path = `/verify-email?email=${encodeURIComponent(email.trim())}`;
+      if (redirect !== "/") path += `&redirect=${encodeURIComponent(redirect)}`;
+      if (code) path += `&code=${encodeURIComponent(code)}`;
+      router.push(path);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {

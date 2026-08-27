@@ -22,6 +22,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
+  const [fallbackCode, setFallbackCode] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(
     searchParams.get("error") === "oauth"
@@ -49,7 +50,8 @@ export default function LoginForm() {
     setError(null);
     setSubmitting(true);
     try {
-      await requestLoginCode(email.trim());
+      const res = await requestLoginCode(email.trim());
+      setFallbackCode(res.verificationCode ?? null);
       setCodeSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send code");
@@ -86,6 +88,7 @@ export default function LoginForm() {
     setPassword("");
     setCode("");
     setCodeSent(false);
+    setFallbackCode(null);
   }
 
   return (
@@ -191,6 +194,13 @@ export default function LoginForm() {
           <p className="text-sm text-neutral-500">
             We emailed a 6-digit code to <strong>{email.trim()}</strong>.
           </p>
+
+          {fallbackCode && (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              We couldn&apos;t deliver that email, so here&apos;s your code:{" "}
+              <strong className="tracking-widest">{fallbackCode}</strong>
+            </p>
+          )}
 
           <label className="block text-sm font-medium text-neutral-700">
             Verification code

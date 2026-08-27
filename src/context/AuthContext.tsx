@@ -10,14 +10,15 @@ import {
   type ReactNode,
 } from "react";
 import { api, clearToken, getToken, setToken } from "@/lib/api";
-import type { UserResponse } from "@/lib/types";
+import type { CodeResponse, UserResponse } from "@/lib/types";
 
 interface AuthContextValue {
   user: UserResponse | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  requestLoginCode: (email: string) => Promise<void>;
+  requestLoginCode: (email: string) => Promise<CodeResponse>;
   loginWithCode: (email: string, code: string) => Promise<void>;
+  refreshUser: () => Promise<void>;
   logout: () => void;
 }
 
@@ -66,14 +67,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   }, []);
 
-  const requestLoginCode = useCallback(async (email: string) => {
-    await api.requestLoginCode(email);
-  }, []);
+  const requestLoginCode = useCallback(
+    (email: string) => api.requestLoginCode(email),
+    []
+  );
 
   const loginWithCode = useCallback(async (email: string, code: string) => {
     const res = await api.loginWithCode(email, code);
     setToken(res.token);
     setUser(res.user);
+  }, []);
+
+  // Re-fetches the current user from the token already in localStorage. Used
+  // by the OAuth callback after it stores the fresh token — without this the
+  // navbar stays "logged out" until a full page reload.
+  const refreshUser = useCallback(async () => {
+    const token = getToken();
+    if (!token) {
+      setUser(null);
+      return;
+    }
+    try {
+      const me = await api.getMe();
+      setUser(me);
+    } catch {
+      clearToken();
+      setUser(null);
+    }
   }, []);
 
   const logout = useCallback(() => {
@@ -82,8 +102,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, login, requestLoginCode, loginWithCode, logout }),
-    [user, loading, login, requestLoginCode, loginWithCode, logout]
+    () => ({ user, loading, login, requestLoginCode, loginWithCode, refreshUser, logout }),
+    [user, loading, login, requestLoginCode, loginWithCode, refreshUser, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

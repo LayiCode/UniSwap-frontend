@@ -16,6 +16,13 @@ export interface AuthResponse {
 export interface RegisterResponse {
   user: UserResponse;
   message: string;
+  /** Present only when the verification email couldn't be delivered. */
+  verificationCode?: string | null;
+}
+
+/** Response from login-code / resend-verification-code (may carry a fallback code). */
+export interface CodeResponse {
+  verificationCode?: string | null;
 }
 
 export interface AuthConfig {

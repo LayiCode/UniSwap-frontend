@@ -10,10 +10,14 @@ import { safeRedirect } from "@/lib/redirect";
 export default function VerifyEmailForm() {
   const searchParams = useSearchParams();
   const initialEmail = searchParams.get("email") ?? "";
+  const initialCode = searchParams.get("code") ?? "";
   const redirect = safeRedirect(searchParams.get("redirect"));
 
   const [email, setEmail] = useState(initialEmail);
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(initialCode);
+  const [fallbackCode, setFallbackCode] = useState<string | null>(
+    initialCode || null
+  );
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -39,7 +43,8 @@ export default function VerifyEmailForm() {
     setResending(true);
     setError(null);
     try {
-      await api.resendVerificationCode(email.trim());
+      const res = await api.resendVerificationCode(email.trim());
+      setFallbackCode(res.verificationCode ?? null);
       setMessage("A new code is on its way. Check your email.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to resend code");
@@ -58,6 +63,13 @@ export default function VerifyEmailForm() {
       <p className="mt-1 text-sm text-neutral-500">
         Enter the 6-digit code we emailed you to activate your account.
       </p>
+
+      {fallbackCode && (
+        <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          We couldn&apos;t deliver the email, so here&apos;s your code:{" "}
+          <strong className="tracking-widest">{fallbackCode}</strong>
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <label className="block text-sm font-medium text-neutral-700">

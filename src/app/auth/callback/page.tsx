@@ -2,12 +2,14 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
-import { api, setToken } from "@/lib/api";
+import { setToken } from "@/lib/api";
 import { safeRedirect } from "@/lib/redirect";
+import { useAuth } from "@/context/AuthContext";
 
 function CallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { refreshUser } = useAuth();
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -20,7 +22,7 @@ function CallbackHandler() {
     (async () => {
       try {
         setToken(token);
-        await api.getMe(); // throws if the token is invalid
+        await refreshUser(); // populates AuthContext so the navbar reacts immediately
         if (!cancelled) router.replace(safeRedirect(searchParams.get("redirect")));
       } catch {
         if (!cancelled) router.replace("/login?error=oauth");
@@ -29,7 +31,7 @@ function CallbackHandler() {
     return () => {
       cancelled = true;
     };
-  }, [router, searchParams]);
+  }, [router, searchParams, refreshUser]);
 
   return (
     <p className="py-16 text-center text-sm text-neutral-500">

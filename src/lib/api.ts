@@ -2,6 +2,7 @@ import type {
   AuthConfig,
   AuthResponse,
   ChatMessage,
+  CodeResponse,
   Conversation,
   CreatePurchaseRequestInput,
   CreateReportInput,
@@ -93,11 +94,13 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return JSON.parse(text) as T;
 }
 
-// Strips the backend origin from image URLs so they route through the
-// same-origin /uploads proxy instead of hitting the backend directly.
+// Rewrites image URLs so they render correctly in the browser. Images hosted
+// on the backend (local /uploads proxy) run through the same-origin /uploads
+// rewrite, so the backend origin is stripped. External origins — like Supabase
+// Storage URLs from the multi-image feature — are left fully intact.
 export function imageUrl(src: string | null | undefined): string | undefined {
   if (!src) return undefined;
-  return src.replace(/^https?:\/\/[^/]+/, "");
+  return src.replace(/^https?:\/\/[^/]+(?=\/uploads)/, "");
 }
 
 export function formatPrice(value: number): string {
@@ -163,15 +166,16 @@ export const api = {
     return request(`/auth/check-username?${params.toString()}`);
   },
 
-  resendVerificationCode(email: string): Promise<void> {
+  resendVerificationCode(email: string): Promise<CodeResponse> {
     return request("/auth/resend-verification-code", {
       method: "POST",
       body: JSON.stringify({ email }),
     });
   },
 
-  // Passwordless login, step 1: emails a one-time code.
-  requestLoginCode(email: string): Promise<void> {
+  // Passwordless login, step 1: emails a one-time code. Resolves with the code
+  // itself when email delivery failed (fallback for campus inboxes).
+  requestLoginCode(email: string): Promise<CodeResponse> {
     return request("/auth/login-code", {
       method: "POST",
       body: JSON.stringify({ email }),
