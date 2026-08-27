@@ -5,6 +5,9 @@ import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
 import { inputClass } from "@/components/ProductForm";
 import PasswordInput from "@/components/PasswordInput";
+import ApiErrorBox from "@/components/ApiErrorBox";
+import OtpInput from "@/components/OtpInput";
+import useCodeCooldown from "@/hooks/useCodeCooldown";
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -13,8 +16,10 @@ export default function ForgotPasswordForm() {
   const [confirm, setConfirm] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+  const cooldown = useCodeCooldown();
 
   async function requestCode(e: FormEvent) {
     e.preventDefault();
@@ -27,10 +32,30 @@ export default function ForgotPasswordForm() {
       setMessage(
         "If that email belongs to an account, a reset code is on its way."
       );
+      cooldown.start();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to send reset code");
+      if (!cooldown.handleSendError(err)) {
+        setError(err instanceof Error ? err : "Failed to send reset code");
+      }
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function resendCode() {
+    setError(null);
+    setMessage(null);
+    setResending(true);
+    try {
+      await api.forgotPassword(email.trim());
+      setMessage("A new reset code is on its way. Check your email.");
+      cooldown.start();
+    } catch (err) {
+      if (!cooldown.handleSendError(err)) {
+        setError(err instanceof Error ? err : "Failed to resend code");
+      }
+    } finally {
+      setResending(false);
     }
   }
 
@@ -49,7 +74,7 @@ export default function ForgotPasswordForm() {
       await api.resetPassword(email.trim(), code.trim(), newPassword);
       setMessage("Password reset! You can now log in with a code.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to reset password");
+      setError(err instanceof Error ? err : "Failed to reset password");
     } finally {
       setSubmitting(false);
     }
@@ -83,11 +108,7 @@ export default function ForgotPasswordForm() {
             />
           </label>
 
-          {error && (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
-          )}
+          <ApiErrorBox error={error} />
 
           <button
             type="submit"
@@ -99,20 +120,12 @@ export default function ForgotPasswordForm() {
         </form>
       ) : (
         <form onSubmit={resetPassword} className="mt-8 space-y-5">
-          <label className="block text-sm font-medium text-neutral-700">
-            Verification code
-            <input
-              inputMode="numeric"
-              autoFocus
-              required
-              autoComplete="one-time-code"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-              placeholder="6-digit code"
-              maxLength={6}
-              className={`${inputClass} tracking-widest`}
-            />
-          </label>
+          <div>
+            <span className="text-sm font-medium text-neutral-700">
+              Verification code
+            </span>
+            <OtpInput value={code} onChange={setCode} disabled={submitting} />
+          </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block text-sm font-medium text-neutral-700">
@@ -145,11 +158,7 @@ export default function ForgotPasswordForm() {
               {message}
             </p>
           )}
-          {error && (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
-          )}
+          <ApiErrorBox error={error} />
 
           {!done && (
             <button
@@ -159,6 +168,23 @@ export default function ForgotPasswordForm() {
             >
               {submitting ? "Resetting…" : "Reset password"}
             </button>
+          )}
+
+          {!done && (
+            <div className="text-center text-sm">
+              <button
+                type="button"
+                disabled={resending || cooldown.secondsLeft > 0}
+                onClick={resendCode}
+                className="font-medium text-brand-700 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {cooldown.secondsLeft > 0
+                  ? `Resend code in ${cooldown.secondsLeft}s…`
+                  : resending
+                    ? "Resending…"
+                    : "Resend code"}
+              </button>
+            </div>
           )}
         </form>
       )}

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { api, imageUrl } from "@/lib/api";
 import { CATEGORIES, CONDITIONS } from "@/lib/constants";
 import type { Product, ProductInput } from "@/lib/types";
+import ApiErrorBox from "@/components/ApiErrorBox";
 
 const MAX_IMAGES = 5;
 
@@ -48,7 +49,7 @@ export default function ProductForm({
     product?.itemCondition ?? ""
   );
   const [files, setFiles] = useState<File[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
   const [submitting, setSubmitting] = useState(false);
 
   // Object URLs for the newly picked files; revoked whenever the selection
@@ -122,7 +123,7 @@ export default function ProductForm({
       onSaved(saved);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Something went wrong, try again"
+        err instanceof Error ? err : "Something went wrong, try again"
       );
     } finally {
       setSubmitting(false);
@@ -284,11 +285,7 @@ export default function ProductForm({
         />
       </Field>
 
-      {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </p>
-      )}
+      <ApiErrorBox error={error} />
 
       <button
         type="submit"

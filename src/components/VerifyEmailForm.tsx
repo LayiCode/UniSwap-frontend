@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
-import { inputClass } from "@/components/ProductForm";
 import { safeRedirect } from "@/lib/redirect";
+import ApiErrorBox from "@/components/ApiErrorBox";
+import OtpInput from "@/components/OtpInput";
+import useCodeCooldown from "@/hooks/useCodeCooldown";
 
 export default function VerifyEmailForm() {
   const searchParams = useSearchParams();
@@ -19,9 +21,10 @@ export default function VerifyEmailForm() {
     initialCode || null
   );
   const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
   const [submitting, setSubmitting] = useState(false);
   const [resending, setResending] = useState(false);
+  const cooldown = useCodeCooldown();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -33,21 +36,24 @@ export default function VerifyEmailForm() {
       setMessage("Email verified! You can now log in.");
       setCode("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Verification failed");
+      setError(err instanceof Error ? err : "Verification failed");
     } finally {
       setSubmitting(false);
     }
   }
 
   async function resendCode() {
-    setResending(true);
     setError(null);
+    setResending(true);
     try {
       const res = await api.resendVerificationCode(email.trim());
       setFallbackCode(res.verificationCode ?? null);
       setMessage("A new code is on its way. Check your email.");
+      cooldown.start();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to resend code");
+      if (!cooldown.handleSendError(err)) {
+        setError(err instanceof Error ? err : "Failed to resend code");
+      }
     } finally {
       setResending(false);
     }
@@ -74,42 +80,24 @@ export default function VerifyEmailForm() {
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <label className="block text-sm font-medium text-neutral-700">
           Email
-          <input
-            type="email"
-            required
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Your campus email"
-            className={inputClass}
-          />
+          <p className="mt-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
+            {email.trim() || "Your campus email"}
+          </p>
         </label>
 
-        <label className="block text-sm font-medium text-neutral-700">
-          Verification code
-          <input
-            inputMode="numeric"
-            autoFocus
-            required
-            autoComplete="one-time-code"
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-            placeholder="6-digit code"
-            maxLength={6}
-            className={`${inputClass} tracking-widest`}
-          />
-        </label>
+        <div>
+          <span className="text-sm font-medium text-neutral-700">
+            Verification code
+          </span>
+          <OtpInput value={code} onChange={setCode} disabled={submitting} />
+        </div>
 
         {message && (
           <p className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm text-brand-700">
             {message}
           </p>
         )}
-        {error && (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        )}
+        <ApiErrorBox error={error} />
 
         {!verified && (
           <button
@@ -134,11 +122,15 @@ export default function VerifyEmailForm() {
       ) : (
         <button
           type="button"
-          disabled={resending}
+          disabled={resending || cooldown.secondsLeft > 0}
           onClick={resendCode}
-          className="mt-6 w-full text-center text-sm font-medium text-brand-700 hover:underline disabled:opacity-50"
+          className="mt-6 w-full text-center text-sm font-medium text-brand-700 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {resending ? "Resending…" : "Resend code"}
+          {cooldown.secondsLeft > 0
+            ? `Resend code in ${cooldown.secondsLeft}s…`
+            : resending
+              ? "Resending…"
+              : "Resend code"}
         </button>
       )}
 

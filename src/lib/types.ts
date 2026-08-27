@@ -148,4 +148,5 @@ export interface UpdateReportStatusInput {
 export interface ApiErrorBody {
   message?: string;
   details?: string[];
+  retryAfterSeconds?: number;
 }

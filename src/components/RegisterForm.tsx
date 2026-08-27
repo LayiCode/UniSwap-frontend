@@ -8,6 +8,7 @@ import { inputClass } from "@/components/ProductForm";
 import PasswordInput from "@/components/PasswordInput";
 import { safeRedirect } from "@/lib/redirect";
 import GoogleButton from "@/components/GoogleButton";
+import ApiErrorBox from "@/components/ApiErrorBox";
 
 // Mirrors the backend's rule so users get instant feedback instead of a
 // round-trip: the password must not equal, contain, or closely resemble the
@@ -37,7 +38,7 @@ export default function RegisterForm() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
   const [submitting, setSubmitting] = useState(false);
   // The result of the most recent live availability check, tagged with the
   // username it was for so a stale result is never shown against new input.
@@ -103,7 +104,7 @@ export default function RegisterForm() {
       if (code) path += `&code=${encodeURIComponent(code)}`;
       router.push(path);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
+      setError(err instanceof Error ? err : "Registration failed");
     } finally {
       setSubmitting(false);
     }
@@ -198,11 +199,7 @@ export default function RegisterForm() {
           </label>
         </div>
 
-        {error && (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        )}
+        <ApiErrorBox error={error} />
 
         <button
           type="submit"

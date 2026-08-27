@@ -37,12 +37,14 @@ export function clearToken(): void {
 export class ApiError extends Error {
   status: number;
   details?: string[];
+  retryAfterSeconds?: number;
 
-  constructor(status: number, message: string, details?: string[]) {
+  constructor(status: number, message: string, details?: string[], retryAfterSeconds?: number) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.details = details;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 
@@ -75,14 +77,17 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     }
     let message = `Request failed with status ${res.status}`;
     let details: string[] | undefined;
+    let retryAfterSeconds: number | undefined;
     try {
       const body: ApiErrorBody = await res.json();
       if (body.message) message = body.message;
       if (Array.isArray(body.details)) details = body.details;
+      if (typeof body.retryAfterSeconds === "number")
+        retryAfterSeconds = body.retryAfterSeconds;
     } catch {
       // non-JSON error body — keep the fallback message
     }
-    throw new ApiError(res.status, message, details);
+    throw new ApiError(res.status, message, details, retryAfterSeconds);
   }
 
   // Several endpoints respond 200 with an empty body (e.g. login-code,

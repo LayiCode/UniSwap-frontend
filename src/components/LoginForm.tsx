@@ -8,6 +8,9 @@ import { inputClass } from "@/components/ProductForm";
 import PasswordInput from "@/components/PasswordInput";
 import { safeRedirect } from "@/lib/redirect";
 import GoogleButton from "@/components/GoogleButton";
+import ApiErrorBox from "@/components/ApiErrorBox";
+import OtpInput from "@/components/OtpInput";
+import useCodeCooldown from "@/hooks/useCodeCooldown";
 
 type LoginMode = "password" | "code";
 
@@ -24,12 +27,13 @@ export default function LoginForm() {
   const [codeSent, setCodeSent] = useState(false);
   const [fallbackCode, setFallbackCode] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
-  const [error, setError] = useState<string | null>(
+  const [error, setError] = useState<unknown>(
     searchParams.get("error") === "oauth"
-      ? "Google sign-in didn't complete. Please try again."
+      ? new Error("Google sign-in didn't complete. Please try again.")
       : null
   );
   const [submitting, setSubmitting] = useState(false);
+  const cooldown = useCodeCooldown();
 
   async function submitPassword(e: FormEvent) {
     e.preventDefault();
@@ -39,7 +43,7 @@ export default function LoginForm() {
       await login(email.trim(), password);
       router.push(redirect);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err : "Login failed");
     } finally {
       setSubmitting(false);
     }
@@ -53,8 +57,11 @@ export default function LoginForm() {
       const res = await requestLoginCode(email.trim());
       setFallbackCode(res.verificationCode ?? null);
       setCodeSent(true);
+      cooldown.start();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to send code");
+      if (!cooldown.handleSendError(err)) {
+        setError(err instanceof Error ? err : "Failed to send code");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -68,14 +75,17 @@ export default function LoginForm() {
       await loginWithCode(email.trim(), code.trim());
       router.push(redirect);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Verification failed";
+      const message = err instanceof Error ? err.message : "Verification failed";
       // Backend's 401 for a valid-but-unverified account — point them at the
       // email verification page instead of a dead end.
       setError(
         message.includes("Email not verified")
-          ? "Your email isn't verified yet. Check your inbox for the signup code, or verify it now."
-          : message
+          ? new Error(
+              "Your email isn't verified yet. Check your inbox for the signup code, or verify it now."
+            )
+          : err instanceof Error
+            ? err
+            : "Verification failed"
       );
     } finally {
       setSubmitting(false);
@@ -89,6 +99,23 @@ export default function LoginForm() {
     setCode("");
     setCodeSent(false);
     setFallbackCode(null);
+    cooldown.clear();
+  }
+
+  async function resendCode() {
+    setError(null);
+    setResending(true);
+    try {
+      await requestLoginCode(email.trim());
+      setCode("");
+      cooldown.start();
+    } catch (err) {
+      if (!cooldown.handleSendError(err)) {
+        setError(err instanceof Error ? err : "Failed to resend code");
+      }
+    } finally {
+      setResending(false);
+    }
   }
 
   return (
@@ -147,11 +174,7 @@ export default function LoginForm() {
             />
           </label>
 
-          {error && (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
-          )}
+          <ApiErrorBox error={error} />
 
           <button
             type="submit"
@@ -175,11 +198,7 @@ export default function LoginForm() {
             />
           </label>
 
-          {error && (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
-          )}
+          <ApiErrorBox error={error} />
 
           <button
             type="submit"
@@ -202,25 +221,14 @@ export default function LoginForm() {
             </p>
           )}
 
-          <label className="block text-sm font-medium text-neutral-700">
-            Verification code
-            <input
-              inputMode="numeric"
-              autoFocus
-              required
-              autoComplete="one-time-code"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-              maxLength={6}
-              className={`${inputClass} tracking-widest`}
-            />
-          </label>
+          <div>
+            <span className="text-sm font-medium text-neutral-700">
+              Verification code
+            </span>
+            <OtpInput value={code} onChange={setCode} disabled={submitting} />
+          </div>
 
-          {error && (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
-          )}
+          <ApiErrorBox error={error} />
 
           <button
             type="submit"
@@ -233,21 +241,15 @@ export default function LoginForm() {
           <div className="flex items-center justify-between text-sm">
             <button
               type="button"
-              disabled={resending}
-              onClick={async () => {
-                setResending(true);
-                try {
-                  await requestLoginCode(email.trim());
-                  setCode("");
-                } catch {
-                  // keep the old code field; the login step reports errors
-                } finally {
-                  setResending(false);
-                }
-              }}
-              className="font-medium text-brand-700 hover:underline disabled:opacity-50"
+              disabled={resending || cooldown.secondsLeft > 0}
+              onClick={resendCode}
+              className="font-medium text-brand-700 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {resending ? "Resending…" : "Resend code"}
+              {cooldown.secondsLeft > 0
+                ? `Resend in ${cooldown.secondsLeft}s…`
+                : resending
+                  ? "Resending…"
+                  : "Resend code"}
             </button>
             <Link
               href={`/verify-email?email=${encodeURIComponent(email.trim())}`}
