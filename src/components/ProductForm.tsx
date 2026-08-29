@@ -48,9 +48,26 @@ export default function ProductForm({
   const [itemCondition, setItemCondition] = useState(
     product?.itemCondition ?? ""
   );
+  const [location, setLocation] = useState(product?.location ?? "");
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<unknown>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Prefill the pickup location from the user's default when creating a brand
+  // new listing (edit mode keeps the listing's own value).
+  useEffect(() => {
+    if (product) return;
+    let cancelled = false;
+    api
+      .getMe()
+      .then((me) => {
+        if (!cancelled && me.location) setLocation(me.location);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [product]);
 
   // Object URLs for the newly picked files; revoked whenever the selection
   // changes or the form unmounts so blobs don't leak.
@@ -102,6 +119,7 @@ export default function ProductForm({
       price: Number(price),
       category,
       itemCondition,
+      location: location.trim() || null,
     };
 
     if (!payload.title) return setError("Title is required");
@@ -258,29 +276,42 @@ export default function ProductForm({
         </Field>
       </div>
 
-      <Field label="Category" required>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className={inputClass}
-        >
-          <option value="" disabled>
-            Select category
-          </option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Category" required>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className={inputClass}
+          >
+            <option value="" disabled>
+              Select category
             </option>
-          ))}
-        </select>
-      </Field>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="Pickup location">
+          <input
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            maxLength={120}
+            placeholder="e.g. North Gate, LAUTECH"
+            className={inputClass}
+          />
+        </Field>
+      </div>
 
       <Field label="Description">
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={5}
-          placeholder="Condition details, specs, pickup location…"
+          placeholder="Condition details, specs, and anything else a buyer should know…"
           className={`${inputClass} resize-y`}
         />
       </Field>
