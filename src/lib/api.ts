@@ -9,11 +9,13 @@ import type {
   PageResponse,
   Product,
   ProductInput,
+  PublicUser,
   PurchaseRequest,
   RegisterResponse,
   Report,
   ReportStatus,
   SendMessageInput,
+  UpdateProfileInput,
   UpdateReportStatusInput,
   UserResponse,
   ApiErrorBody,
@@ -215,6 +217,38 @@ export const api = {
 
   getMe(): Promise<UserResponse> {
     return request("/users/me");
+  },
+
+  // Partial update of the current user's profile (display name, bio, location).
+  updateProfile(data: UpdateProfileInput): Promise<UserResponse> {
+    return request("/users/me", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Replaces the current user's avatar. Field name must be "file".
+  uploadAvatar(file: File): Promise<UserResponse> {
+    const form = new FormData();
+    form.append("file", file);
+    return request("/users/me/avatar", {
+      method: "POST",
+      body: form,
+    });
+  },
+
+  // Public profile lookup for another user (email/phone withheld).
+  getPublicUser(id: number | string): Promise<PublicUser> {
+    return request(`/users/${id}`);
+  },
+
+  // Public profile's currently-available listings for this seller.
+  getUserProducts(
+    id: number | string,
+    page = 0,
+    size = 12
+  ): Promise<PageResponse<Product>> {
+    return request(`/users/${id}/products?page=${page}&size=${size}`);
   },
 
   getProducts(query: ProductQuery = {}): Promise<PageResponse<Product>> {
