@@ -3,9 +3,31 @@ export interface UserResponse {
   username: string;
   email: string;
   phoneNumber: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  location: string | null;
   emailVerified: boolean;
   admin: boolean;
   createdAt: string;
+}
+
+/** Minimal profile of another user, shown on profiles and seller surfaces. */
+export interface PublicUser {
+  id: number;
+  username: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  location: string | null;
+  createdAt: string;
+  activeListingsCount: number;
+}
+
+export interface UpdateProfileInput {
+  displayName?: string;
+  bio?: string;
+  location?: string;
 }
 
 export interface AuthResponse {
@@ -44,6 +66,9 @@ export interface Product {
   imageUrls?: string[] | null;
   sellerId: number;
   sellerUsername: string;
+  sellerDisplayName: string | null;
+  sellerAvatarUrl: string | null;
+  location: string | null;
   createdAt: string;
   favorited: boolean;
   purchaseRequested?: boolean;
@@ -55,6 +80,7 @@ export interface ProductInput {
   price: number;
   category: string;
   itemCondition: string;
+  location?: string | null;
 }
 
 export interface PageResponse<T> {
