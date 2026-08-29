@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import WakingBanner from "@/components/WakingBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const geistSans = Geist({
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           <Navbar />
+          <WakingBanner />
           <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
             <ErrorBoundary>{children}</ErrorBoundary>
           </main>
