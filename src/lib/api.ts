@@ -20,6 +20,7 @@ import type {
   UserResponse,
   ApiErrorBody,
 } from "./types";
+import { setWakingServer } from "@/lib/wakingServer";
 
 const TOKEN_KEY = "uniswap_token";
 
@@ -50,6 +51,22 @@ export class ApiError extends Error {
   }
 }
 
+// Render's free tier lets the backend go to sleep after ~15 min of no traffic
+// and cold-starts it on the next request. That first wake-up request usually
+// fails with a network error or a 502/503/504 gateway error while the instance
+// boots. We detect those sleep signatures and retry a couple of times with a
+// short backoff (the first attempt wakes it, a retry hits the warm app),
+// showing a "Waking UniSwap up…" banner while we wait.
+const WAKING_RETRY_DELAYS_MS = [4000, 8000];
+
+function isRetriableWakingStatus(status: number): boolean {
+  return status === 502 || status === 503 || status === 504;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
@@ -60,45 +77,68 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers["Content-Type"] = "application/json";
   }
 
-  let res: Response;
-  try {
-    res = await fetch(`/api${path}`, { ...options, headers });
-  } catch {
-    throw new ApiError(0, "Cannot reach the server. Is the backend running?");
-  }
-
-  if (!res.ok) {
-    // A 401 means the token is gone/expired/revoked. Drop it immediately and
-    // tell AuthContext to reset state so the UI reflects "logged out" without
-    // waiting for a full page reload.
-    if (res.status === 401) {
-      clearToken();
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("uniswap:unauthorized"));
-      }
-    }
-    let message = `Request failed with status ${res.status}`;
-    let details: string[] | undefined;
-    let retryAfterSeconds: number | undefined;
+  const attempt = async (): Promise<T> => {
+    let res: Response;
     try {
-      const body: ApiErrorBody = await res.json();
-      if (body.message) message = body.message;
-      if (Array.isArray(body.details)) details = body.details;
-      if (typeof body.retryAfterSeconds === "number")
-        retryAfterSeconds = body.retryAfterSeconds;
+      res = await fetch(`/api${path}`, { ...options, headers });
     } catch {
-      // non-JSON error body — keep the fallback message
+      throw new ApiError(0, "Cannot reach the server. Is the backend running?");
     }
-    throw new ApiError(res.status, message, details, retryAfterSeconds);
-  }
 
-  // Several endpoints respond 200 with an empty body (e.g. login-code,
-  // resend-verification-code, forgot-password, reset-password). Calling
-  // res.json() on those throws "Unexpected end of JSON input", so read the
-  // text and only parse when there is actually something to parse.
-  const text = await res.text();
-  if (!text) return undefined as T;
-  return JSON.parse(text) as T;
+    if (!res.ok) {
+      // A 401 means the token is gone/expired/revoked. Drop it immediately and
+      // tell AuthContext to reset state so the UI reflects "logged out" without
+      // waiting for a full page reload.
+      if (res.status === 401) {
+        clearToken();
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("uniswap:unauthorized"));
+        }
+      }
+      let message = `Request failed with status ${res.status}`;
+      let details: string[] | undefined;
+      let retryAfterSeconds: number | undefined;
+      try {
+        const body: ApiErrorBody = await res.json();
+        if (body.message) message = body.message;
+        if (Array.isArray(body.details)) details = body.details;
+        if (typeof body.retryAfterSeconds === "number")
+          retryAfterSeconds = body.retryAfterSeconds;
+      } catch {
+        // non-JSON error body — keep the fallback message
+      }
+      throw new ApiError(res.status, message, details, retryAfterSeconds);
+    }
+
+    // Several endpoints respond 200 with an empty body (e.g. login-code,
+    // resend-verification-code, forgot-password, reset-password). Calling
+    // res.json() on those throws "Unexpected end of JSON input", so read the
+    // text and only parse when there is actually something to parse.
+    const text = await res.text();
+    if (!text) return undefined as T;
+    return JSON.parse(text) as T;
+  };
+
+  for (let i = 0; i <= WAKING_RETRY_DELAYS_MS.length; i++) {
+    try {
+      const result = await attempt();
+      setWakingServer(false);
+      return result;
+    } catch (err) {
+      const networkFailed = err instanceof ApiError && err.status === 0;
+      const gatewayError =
+        err instanceof ApiError && isRetriableWakingStatus(err.status);
+      const canRetry = i < WAKING_RETRY_DELAYS_MS.length && (networkFailed || gatewayError);
+      if (!canRetry) {
+        setWakingServer(false);
+        throw err;
+      }
+      setWakingServer(true);
+      await sleep(WAKING_RETRY_DELAYS_MS[i]);
+    }
+  }
+  // Unreachable: the loop always returns or throws on the final iteration.
+  throw new ApiError(0, "Cannot reach the server. Is the backend running?");
 }
 
 // Rewrites image URLs so they render correctly in the browser. Images hosted
