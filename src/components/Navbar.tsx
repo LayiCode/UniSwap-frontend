@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
+import Avatar from "@/components/Avatar";
 import logo from "@/app/icon.png";
 
 export default function Navbar() {
@@ -97,6 +98,11 @@ export default function Navbar() {
                 )}
               </Link>
             )}
+            {user && (
+              <Link href="/account" className={linkClass("/account")}>
+                Account
+              </Link>
+            )}
           </div>
         </div>
 
@@ -110,9 +116,19 @@ export default function Navbar() {
               >
                 Sell Item
               </Link>
-              <span className="hidden max-w-32 truncate text-sm font-medium text-neutral-600 md:block">
-                {user.username}
-              </span>
+              <Link
+                href={`/users/${user.id}`}
+                className="hidden items-center gap-2 rounded-md px-2 py-1 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 md:flex"
+              >
+                <Avatar
+                  src={user.avatarUrl}
+                  name={user.displayName || user.username}
+                  size={28}
+                />
+                <span className="max-w-32 truncate">
+                  {user.displayName || user.username}
+                </span>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="hidden rounded-md px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 sm:block"
@@ -228,6 +244,13 @@ export default function Navbar() {
                     {unread}
                   </span>
                 )}
+              </Link>
+              <Link
+                href="/account"
+                onClick={() => setMenuOpen(false)}
+                className={linkClass("/account")}
+              >
+                Account
               </Link>
               <button
                 onClick={handleLogout}
