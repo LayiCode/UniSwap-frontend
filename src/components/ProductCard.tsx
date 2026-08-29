@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatPrice, imageUrl } from "@/lib/api";
 import type { Product } from "@/lib/types";
 import FavoriteButton from "@/components/FavoriteButton";
+import Avatar from "@/components/Avatar";
 
 export default function ProductCard({
   product,
@@ -69,7 +70,34 @@ export default function ProductCard({
           <p className="mt-auto pt-2 text-lg font-semibold text-brand-700">
             {formatPrice(product.price)}
           </p>
-          <p className="text-xs text-neutral-500">by {product.sellerUsername}</p>
+          <div className="flex items-center gap-2 text-xs text-neutral-500">
+            <Avatar
+              src={product.sellerAvatarUrl}
+              name={product.sellerDisplayName}
+              size={20}
+            />
+            <span className="truncate">
+              by {product.sellerDisplayName || product.sellerUsername}
+            </span>
+          </div>
+          {product.location && (
+            <p className="flex items-center gap-1 text-xs text-neutral-500">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-3 shrink-0"
+                aria-hidden="true"
+              >
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span className="truncate">{product.location}</span>
+            </p>
+          )}
         </div>
       </Link>
     </div>
