@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -38,8 +39,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
             <ErrorBoundary>{children}</ErrorBoundary>
           </main>
-          <footer className="border-t border-neutral-200 py-6 text-center text-xs text-neutral-400">
-            UniSwap — a campus marketplace for students
+          <footer className="border-t border-neutral-200 py-6">
+            <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 text-xs text-neutral-400 sm:flex-row">
+              <p>UniSwap — a campus marketplace for students</p>
+              <div className="flex items-center gap-4">
+                <Link href="/terms" className="transition-colors hover:text-neutral-600">
+                  Terms of Use
+                </Link>
+                <Link href="/privacy" className="transition-colors hover:text-neutral-600">
+                  Privacy Policy
+                </Link>
+              </div>
+            </div>
           </footer>
         </AuthProvider>
       </body>
