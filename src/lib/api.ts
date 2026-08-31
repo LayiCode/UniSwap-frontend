@@ -277,6 +277,16 @@ export const api = {
     });
   },
 
+  // Soft-deletes the current account, then drops the local session token so
+  // the UI returns to the logged-out state immediately.
+  async deleteAccount(): Promise<void> {
+    await request("/users/me", { method: "DELETE" });
+    clearToken();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("uniswap:unauthorized"));
+    }
+  },
+
   // Public profile lookup for another user (email/phone withheld).
   getPublicUser(id: number | string): Promise<PublicUser> {
     return request(`/users/${id}`);

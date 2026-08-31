@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { inputClass } from "@/components/ProductForm";
 import Avatar from "@/components/Avatar";
 import ApiErrorBox from "@/components/ApiErrorBox";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 export default function AccountForm() {
   const { user, refreshUser } = useAuth();
@@ -18,6 +19,8 @@ export default function AccountForm() {
   const [avatarBusy, setAvatarBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Seed the editable fields from the loaded user. Reset when the user changes.
@@ -65,6 +68,21 @@ export default function AccountForm() {
       setError(err instanceof Error ? err : "Could not save profile");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    setError(null);
+    try {
+      await api.deleteAccount();
+      setConfirmDelete(false);
+      router.push("/");
+    } catch (err) {
+      setError(err instanceof Error ? err : "Could not delete account");
+      setConfirmDelete(false);
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -169,6 +187,32 @@ export default function AccountForm() {
           {saving ? "Saving…" : "Save changes"}
         </button>
       </form>
+
+      {/* Danger zone: deleting an account is irreversible. */}
+      <section className="mt-10 border-t border-neutral-200 pt-6">
+        <h2 className="text-lg font-semibold text-neutral-900">Danger zone</h2>
+        <p className="mt-1 text-sm text-neutral-500">
+          Permanently remove your profile and listings from UniSwap.
+        </p>
+        <button
+          type="button"
+          onClick={() => setConfirmDelete(true)}
+          className="mt-4 rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50"
+        >
+          Delete account
+        </button>
+      </section>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Delete account?"
+        message="This permanently hides your listings and signs you out. Your chat and purchase history is kept for the other people involved, but your profile is removed and you can no longer sign in with this account. This can't be undone — continue?"
+        confirmLabel={deleting ? "Deleting…" : "Delete account"}
+        danger
+        busy={deleting}
+        onConfirm={handleDeleteAccount}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   );
 }
