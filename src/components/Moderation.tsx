@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import type { PageResponse, Report, ReportStatus } from "@/lib/types";
 import Pagination from "@/components/Pagination";
 import { Loading } from "@/components/RequireAuth";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 type Filter = "" | "OPEN" | "RESOLVED" | "DISMISSED";
 
@@ -43,6 +44,8 @@ export default function Moderation() {
   );
   const [actionError, setActionError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
+  // Report whose product is being removed (danger confirm).
+  const [confirmRemove, setConfirmRemove] = useState<number | null>(null);
 
   const key = `${filter || "ALL"}-${page}`;
   const loading = result?.key !== key && error?.key !== key;
@@ -215,7 +218,7 @@ export default function Moderation() {
                       Resolve & keep listing
                     </button>
                     <button
-                      onClick={() => decide(report.id, "RESOLVED", true)}
+                      onClick={() => setConfirmRemove(report.id)}
                       disabled={busyId === report.id}
                       className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-800 disabled:opacity-50"
                     >
@@ -251,6 +254,20 @@ export default function Moderation() {
           </p>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmRemove !== null}
+        title="Remove listing?"
+        message="Resolve this report by permanently deleting the listing. This can't be undone."
+        confirmLabel="Remove listing"
+        danger
+        busy={confirmRemove !== null && busyId === confirmRemove}
+        onConfirm={() => {
+          if (confirmRemove !== null) decide(confirmRemove, "RESOLVED", true);
+          setConfirmRemove(null);
+        }}
+        onCancel={() => setConfirmRemove(null)}
+      />
     </div>
   );
 }

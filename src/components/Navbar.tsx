@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import Avatar from "@/components/Avatar";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import logo from "@/app/icon.png";
 
 export default function Navbar() {
@@ -15,6 +16,7 @@ export default function Navbar() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [unread, setUnread] = useState(0);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -42,8 +44,9 @@ export default function Navbar() {
     }`;
 
   const handleLogout = () => {
-    logout();
+    setConfirmLogout(false);
     setMenuOpen(false);
+    logout();
     router.push("/");
   };
 
@@ -130,7 +133,7 @@ export default function Navbar() {
                 </span>
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={() => setConfirmLogout(true)}
                 className="hidden rounded-md px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 sm:block"
               >
                 Log out
@@ -253,7 +256,7 @@ export default function Navbar() {
                 Account
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={() => setConfirmLogout(true)}
                 className="rounded-md px-3 py-2 text-left text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
               >
                 Log out
@@ -279,6 +282,15 @@ export default function Navbar() {
           )}
         </nav>
       )}
+
+      <ConfirmDialog
+        open={confirmLogout}
+        title="Log out?"
+        message="You'll need an account code to sign back in on this device. Log out anyway?"
+        confirmLabel="Log out"
+        onConfirm={handleLogout}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </header>
   );
 }
