@@ -172,6 +172,32 @@ export default function BrowsePage() {
           </form>
         </div>
 
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => selectCategory(null)}
+            className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+              !category
+                ? "bg-brand-600 text-white"
+                : "border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+            }`}
+          >
+            All
+          </button>
+          {CATEGORIES.map((c) => (
+            <button
+              key={c}
+              onClick={() => selectCategory(c)}
+              className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                category === c
+                  ? "bg-brand-600 text-white"
+                  : "border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+
         <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4">
           <select
             value={category}

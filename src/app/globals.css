@@ -11,19 +11,19 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* UniSwap brand palette — derived from the logo (#0050E0 vivid blue on
-     navy #001050/#002070 accents). Use brand-600 for primary actions. */
-  --color-brand-50: #ebf2ff;
-  --color-brand-100: #d6e5ff;
-  --color-brand-200: #adc8ff;
-  --color-brand-300: #84a9ff;
-  --color-brand-400: #4a7fff;
-  --color-brand-500: #1a66f0;
-  --color-brand-600: #0050e0;
-  --color-brand-700: #0040b5;
-  --color-brand-800: #003285;
-  --color-brand-900: #002050;
-  --color-brand-950: #001040;
+  /* UniSwap brand palette — a fresh, neighborhood-marketplace green in the
+     spirit of local community apps. Use brand-600 for primary actions. */
+  --color-brand-50: #ecfdf3;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #00a647;
+  --color-brand-700: #008f3d;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+  --color-brand-950: #022c22;
 }
 
 body {
