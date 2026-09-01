@@ -40,6 +40,7 @@ export default function RegisterForm() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<unknown>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   // The result of the most recent live availability check, tagged with the
   // username it was for so a stale result is never shown against new input.
   const [usernameCheck, setUsernameCheck] = useState<UsernameCheck | null>(null);
@@ -85,6 +86,10 @@ export default function RegisterForm() {
     }
     if (trimmedUsername && isPasswordSimilarToUsername(trimmedUsername, password)) {
       setError("Password must not be the same as or too similar to your username");
+      return;
+    }
+    if (!termsAccepted) {
+      setError("Please accept the Terms of Use and Privacy Policy to continue");
       return;
     }
 
@@ -200,6 +205,27 @@ export default function RegisterForm() {
         </div>
 
         <ApiErrorBox error={error} />
+
+        <label className="flex items-start gap-2.5 text-sm text-neutral-600">
+          <input
+            type="checkbox"
+            required
+            checked={termsAccepted}
+            onChange={(e) => setTermsAccepted(e.target.checked)}
+            className="mt-0.5 size-4 shrink-0 rounded border-neutral-300 accent-brand-600"
+          />
+          <span>
+            I agree to the{" "}
+            <Link href="/terms" className="font-medium text-brand-700 hover:underline">
+              Terms of Use
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="font-medium text-brand-700 hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </span>
+        </label>
 
         <button
           type="submit"
