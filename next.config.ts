@@ -21,13 +21,6 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      // Vercel Cron pings /api/cron/ping to keep the backend awake. This must
-      // NOT be forwarded to the backend — serve the local route handler instead,
-      // so it has to come before the catch-all backend rewrite below.
-      {
-        source: "/api/cron/:path*",
-        destination: "/api/cron/:path*",
-      },
       {
         source: "/api/:path*",
         destination: `${backend}/api/:path*`,
