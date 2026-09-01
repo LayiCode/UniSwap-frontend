@@ -200,20 +200,6 @@ export default function BrowsePage() {
 
         <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4">
           <select
-            value={category}
-            onChange={(e) => selectCategory(e.target.value || null)}
-            aria-label="Filter by category"
-            className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20"
-          >
-            <option value="">All categories</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-
-          <select
             value={condition}
             onChange={(e) => selectCondition(e.target.value)}
             aria-label="Filter by condition"
