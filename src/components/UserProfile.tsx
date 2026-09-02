@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, formatDate } from "@/lib/api";
 import type { PageResponse, Product, PublicUser } from "@/lib/types";
@@ -7,8 +8,10 @@ import { Loading } from "@/components/RequireAuth";
 import Avatar from "@/components/Avatar";
 import ProductCard from "@/components/ProductCard";
 import Pagination from "@/components/Pagination";
+import { useAuth } from "@/context/AuthContext";
 
 export default function UserProfile({ id }: { id: string }) {
+  const { user } = useAuth();
   const [profile, setProfile] = useState<PublicUser | null>(null);
   const [profErr, setProfErr] = useState<string | null>(null);
   const [page, setPage] = useState(0);
@@ -85,6 +88,14 @@ export default function UserProfile({ id }: { id: string }) {
             Member since {formatDate(profile.createdAt)}
           </p>
         </div>
+        {user && String(user.id) === id && (
+          <Link
+            href="/account"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 sm:ml-auto"
+          >
+            Edit account
+          </Link>
+        )}
       </div>
 
       {(profile.location || profile.bio) && (
