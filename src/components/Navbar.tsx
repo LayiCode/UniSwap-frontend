@@ -101,11 +101,6 @@ export default function Navbar() {
                 )}
               </Link>
             )}
-            {user && (
-              <Link href="/account" className={linkClass("/account")}>
-                Account
-              </Link>
-            )}
           </div>
         </div>
 
@@ -247,13 +242,6 @@ export default function Navbar() {
                     {unread}
                   </span>
                 )}
-              </Link>
-              <Link
-                href="/account"
-                onClick={() => setMenuOpen(false)}
-                className={linkClass("/account")}
-              >
-                Account
               </Link>
               <button
                 onClick={() => setConfirmLogout(true)}
