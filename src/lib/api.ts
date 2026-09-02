@@ -1,6 +1,7 @@
 import type {
   AuthConfig,
   AuthResponse,
+  ChangePasswordInput,
   ChatMessage,
   CodeResponse,
   Conversation,
@@ -274,6 +275,15 @@ export const api = {
     return request("/users/me/avatar", {
       method: "POST",
       body: form,
+    });
+  },
+
+  // Changes the password for the currently authenticated account. Requires the
+  // current password for confirmation.
+  changePassword(data: ChangePasswordInput): Promise<void> {
+    return request("/users/me/password", {
+      method: "PATCH",
+      body: JSON.stringify(data),
     });
   },
 
