@@ -25,9 +25,16 @@ export interface PublicUser {
 }
 
 export interface UpdateProfileInput {
+  username?: string;
+  phoneNumber?: string;
   displayName?: string;
   bio?: string;
   location?: string;
+}
+
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface AuthResponse {
