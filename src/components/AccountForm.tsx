@@ -1,11 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { inputClass } from "@/components/ProductForm";
 import Avatar from "@/components/Avatar";
+import PasswordInput from "@/components/PasswordInput";
 import ApiErrorBox from "@/components/ApiErrorBox";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
@@ -15,12 +17,20 @@ export default function AccountForm() {
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
+  const [username, setUsername] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [saving, setSaving] = useState(false);
   const [avatarBusy, setAvatarBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<unknown>(null);
+  const [passwordNotice, setPasswordNotice] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Seed the editable fields from the loaded user. Reset when the user changes.
@@ -29,6 +39,8 @@ export default function AccountForm() {
     setDisplayName(user.displayName ?? "");
     setBio(user.bio ?? "");
     setLocation(user.location ?? "");
+    setUsername(user.username ?? "");
+    setPhoneNumber(user.phoneNumber ?? "");
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!user) return null;
@@ -58,9 +70,11 @@ export default function AccountForm() {
     setError(null);
     try {
       await api.updateProfile({
-        displayName: displayName.trim(),
-        bio: bio.trim(),
-        location: location.trim(),
+        displayName: displayName.trim() || undefined,
+        bio: bio.trim() || undefined,
+        location: location.trim() || undefined,
+        username: username.trim() || undefined,
+        phoneNumber: phoneNumber.trim() || undefined,
       });
       await refreshUser();
       router.refresh();
@@ -68,6 +82,31 @@ export default function AccountForm() {
       setError(err instanceof Error ? err : "Could not save profile");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleChangePassword(e: FormEvent) {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordNotice(null);
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError("New passwords do not match");
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      await api.changePassword({
+        currentPassword,
+        newPassword,
+      });
+      setPasswordNotice("Password updated.");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err : "Could not change password");
+    } finally {
+      setChangingPassword(false);
     }
   }
 
@@ -128,6 +167,22 @@ export default function AccountForm() {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <label className="block text-sm font-medium text-neutral-700">
+          Username
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            maxLength={30}
+            autoComplete="username"
+            placeholder="Optional — keep your current one"
+            className={inputClass}
+          />
+          <span className="mt-1 block text-xs text-neutral-400">
+            Leave blank to keep your current username.
+          </span>
+        </label>
+
+        <label className="block text-sm font-medium text-neutral-700">
           Display name
           <input
             type="text"
@@ -144,9 +199,11 @@ export default function AccountForm() {
           Phone number
           <input
             type="text"
-            value={user.phoneNumber}
-            readOnly
-            className={`${inputClass} bg-neutral-100 text-neutral-500`}
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            maxLength={20}
+            autoComplete="tel"
+            className={inputClass}
           />
         </label>
 
@@ -187,6 +244,72 @@ export default function AccountForm() {
           {saving ? "Saving…" : "Save changes"}
         </button>
       </form>
+
+      {/* Change password: requires the current password. */}
+      <section className="mt-10 border-t border-neutral-200 pt-6">
+        <h2 className="text-lg font-semibold text-neutral-900">Change password</h2>
+        <p className="mt-1 text-sm text-neutral-500">
+          Set a new password for your account.
+        </p>
+        <form onSubmit={handleChangePassword} className="mt-4 space-y-5">
+          <label className="block text-sm font-medium text-neutral-700">
+            Current password
+            <PasswordInput
+              required
+              autoComplete="current-password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+          </label>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="block text-sm font-medium text-neutral-700">
+              New password
+              <PasswordInput
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </label>
+
+            <label className="block text-sm font-medium text-neutral-700">
+              Confirm new password
+              <PasswordInput
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+              />
+            </label>
+          </div>
+
+          <ApiErrorBox error={passwordError} />
+          {passwordNotice && (
+            <p className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+              {passwordNotice}
+            </p>
+          )}
+
+          <div className="flex items-center justify-between">
+            <Link
+              href="/forgot-password"
+              className="text-sm font-medium text-brand-700 hover:underline"
+            >
+              Forgot your password?
+            </Link>
+            <button
+              type="submit"
+              disabled={changingPassword}
+              className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {changingPassword ? "Updating…" : "Update password"}
+            </button>
+          </div>
+        </form>
+      </section>
 
       {/* Danger zone: deleting an account is irreversible. */}
       <section className="mt-10 border-t border-neutral-200 pt-6">
