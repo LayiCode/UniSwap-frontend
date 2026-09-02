@@ -37,7 +37,7 @@ export default function Navbar() {
   }, [user]);
 
   const linkClass = (href: string) =>
-    `rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+    `rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
       pathname === href
         ? "bg-neutral-900 text-white"
         : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900"
@@ -110,13 +110,13 @@ export default function Navbar() {
               <Link
                 href="/products/new"
                 onClick={() => setMenuOpen(false)}
-                className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+                className="hidden items-center rounded-lg bg-brand-600 px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 sm:inline-flex"
               >
                 Sell Item
               </Link>
               <Link
                 href={`/users/${user.id}`}
-                className="hidden items-center gap-2 rounded-md px-2 py-1 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 md:flex"
+                className="hidden items-center gap-2 rounded-md px-2 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 md:flex"
               >
                 <Avatar
                   src={user.avatarUrl}
@@ -129,7 +129,7 @@ export default function Navbar() {
               </Link>
               <button
                 onClick={() => setConfirmLogout(true)}
-                className="hidden rounded-md px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 sm:block"
+                className="hidden rounded-md px-3 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 sm:block"
               >
                 Log out
               </button>
@@ -138,13 +138,13 @@ export default function Navbar() {
             <>
               <Link
                 href="/login"
-                className="hidden rounded-md px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 sm:block"
+                className="hidden rounded-md px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 sm:block"
               >
                 Log in
               </Link>
               <Link
                 href="/register"
-                className="hidden rounded-lg bg-neutral-900 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 sm:block"
+                className="hidden rounded-lg bg-neutral-900 px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 sm:block"
               >
                 Sign up
               </Link>
@@ -202,6 +202,13 @@ export default function Navbar() {
           {user ? (
             <>
               <Link
+                href="/products/new"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg bg-brand-600 px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+              >
+                Sell Item
+              </Link>
+              <Link
                 href="/my-listings"
                 onClick={() => setMenuOpen(false)}
                 className={linkClass("/my-listings")}
@@ -245,7 +252,7 @@ export default function Navbar() {
               </Link>
               <button
                 onClick={() => setConfirmLogout(true)}
-                className="rounded-md px-3 py-2 text-left text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+                className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
               >
                 Log out
               </button>

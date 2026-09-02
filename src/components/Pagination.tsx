@@ -29,7 +29,7 @@ export default function Pagination({
   if (totalPages <= 1) return null;
 
   const btn =
-    "grid h-9 min-w-9 place-items-center rounded-md border px-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40";
+    "grid h-11 min-w-11 place-items-center rounded-md border px-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40";
 
   return (
     <nav className="flex flex-wrap items-center justify-center gap-1.5">

@@ -213,21 +213,21 @@ export default function Moderation() {
                     <button
                       onClick={() => decide(report.id, "RESOLVED", false)}
                       disabled={busyId === report.id}
-                      className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-800 disabled:opacity-50"
+                      className="rounded-lg bg-green-700 px-4 py-2 btn-touch text-sm font-semibold text-white transition-colors hover:bg-green-800 disabled:opacity-50"
                     >
                       Resolve & keep listing
                     </button>
                     <button
                       onClick={() => setConfirmRemove(report.id)}
                       disabled={busyId === report.id}
-                      className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-800 disabled:opacity-50"
+                      className="rounded-lg bg-red-700 px-4 py-2 btn-touch text-sm font-semibold text-white transition-colors hover:bg-red-800 disabled:opacity-50"
                     >
                       Remove listing
                     </button>
                     <button
                       onClick={() => decide(report.id, "DISMISSED", false)}
                       disabled={busyId === report.id}
-                      className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50"
+                      className="rounded-lg border border-neutral-300 bg-white px-4 py-2 btn-touch text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50"
                     >
                       Dismiss
                     </button>

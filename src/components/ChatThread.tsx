@@ -62,14 +62,14 @@ export default function ChatThread() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col">
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
         <Link
           href="/messages"
-          className="text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+          className="shrink-0 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
         >
           &larr; All messages
         </Link>
-        <h1 className="text-lg font-semibold">{otherName}</h1>
+        <h1 className="min-w-0 flex-1 truncate text-lg font-semibold">{otherName}</h1>
       </div>
 
       <div className="flex h-[60vh] flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white">
@@ -128,7 +128,7 @@ export default function ChatThread() {
           <button
             type="submit"
             disabled={!draft.trim() || sending}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-brand-600 px-4 py-2 btn-touch text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Send
           </button>

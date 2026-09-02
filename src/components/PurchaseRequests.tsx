@@ -117,10 +117,10 @@ export default function PurchaseRequests() {
       </div>
 
       <div className="mb-6 flex gap-2">
-        <button className={tabClass(scope === "received")} onClick={() => switchScope("received")}>
+        <button className={`${tabClass(scope === "received")} btn-touch`} onClick={() => switchScope("received")}>
           Received
         </button>
-        <button className={tabClass(scope === "sent")} onClick={() => switchScope("sent")}>
+        <button className={`${tabClass(scope === "sent")} btn-touch`} onClick={() => switchScope("sent")}>
           Sent
         </button>
       </div>
@@ -185,14 +185,14 @@ export default function PurchaseRequests() {
                       <button
                         onClick={() => decide(req.id, "accept")}
                         disabled={busyId === req.id}
-                        className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-800 disabled:opacity-50"
+                        className="rounded-lg bg-green-700 px-4 py-2 btn-touch text-sm font-semibold text-white transition-colors hover:bg-green-800 disabled:opacity-50"
                       >
                         Accept
                       </button>
                       <button
                         onClick={() => decide(req.id, "decline")}
                         disabled={busyId === req.id}
-                        className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50"
+                        className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 btn-touch text-sm font-medium text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50"
                       >
                         Decline
                       </button>
@@ -202,7 +202,7 @@ export default function PurchaseRequests() {
                     <button
                       onClick={() => decide(req.id, "cancel")}
                       disabled={busyId === req.id}
-                      className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50"
+                      className="rounded-lg border border-neutral-300 bg-white px-4 py-2 btn-touch text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50"
                     >
                       Cancel request
                     </button>

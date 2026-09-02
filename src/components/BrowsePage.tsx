@@ -165,7 +165,7 @@ export default function BrowsePage() {
             />
             <button
               type="submit"
-              className="shrink-0 rounded-lg bg-neutral-900 px-4 text-sm font-medium text-white transition-colors hover:bg-neutral-700"
+              className="shrink-0 rounded-lg bg-neutral-900 px-4 btn-touch text-sm font-medium text-white transition-colors hover:bg-neutral-700"
             >
               Search
             </button>
@@ -224,7 +224,7 @@ export default function BrowsePage() {
             <option value="price_desc">Price: High to Low</option>
           </select>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
             <input
               type="number"
               min="0"
@@ -235,7 +235,7 @@ export default function BrowsePage() {
                 setPriceInput({ ...priceInput, min: e.target.value })
               }
               aria-label="Minimum price"
-              className="w-28 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20"
+              className="w-24 sm:w-28 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20"
             />
             <span className="text-neutral-400">–</span>
             <input
@@ -248,11 +248,11 @@ export default function BrowsePage() {
                 setPriceInput({ ...priceInput, max: e.target.value })
               }
               aria-label="Maximum price"
-              className="w-28 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20"
+              className="w-24 sm:w-28 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20"
             />
             <button
               onClick={applyPrice}
-              className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
+              className="rounded-lg border border-neutral-300 bg-white px-3 py-2 btn-touch text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
             >
               Apply
             </button>

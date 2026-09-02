@@ -58,7 +58,7 @@ export default function FavoriteButton({
       disabled={busy}
       aria-label={favorited ? "Remove from favorites" : "Save to favorites"}
       aria-pressed={favorited}
-      className={`grid size-9 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition-colors hover:bg-white disabled:opacity-60 ${className}`}
+      className={`grid size-11 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition-colors hover:bg-white disabled:opacity-60 ${className}`}
     >
       <svg
         viewBox="0 0 24 24"

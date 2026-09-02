@@ -31,3 +31,12 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+@layer components {
+  /* Minimum ~44px touch target for primary/action buttons on touch devices.
+     Append to a button's Tailwind classes (e.g. "btn-touch px-4 py-2") to
+     guarantee a comfortable tap area without enlarging its visual padding. */
+  .btn-touch {
+    min-height: 2.75rem;
+  }
+}

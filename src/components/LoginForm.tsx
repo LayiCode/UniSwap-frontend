@@ -238,7 +238,7 @@ export default function LoginForm() {
             {submitting ? "Signing in…" : "Verify and log in"}
           </button>
 
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
             <button
               type="button"
               disabled={resending || cooldown.secondsLeft > 0}

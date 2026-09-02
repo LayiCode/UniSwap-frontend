@@ -72,7 +72,7 @@ export default function OtpInput({
           onPaste={handlePaste}
           onFocus={(e) => e.target.select()}
           aria-label={`Digit ${i + 1}`}
-          className="h-12 w-11 rounded-lg border border-neutral-300 bg-white text-center text-lg font-semibold text-neutral-900 outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 disabled:opacity-50"
+          className="h-12 w-10 sm:w-11 rounded-lg border border-neutral-300 bg-white text-center text-lg font-semibold text-neutral-900 outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 disabled:opacity-50"
         />
       ))}
     </div>

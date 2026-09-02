@@ -276,7 +276,7 @@ export default function ProductDetail({ id }: { id: string }) {
           <div className="flex flex-col gap-3 border-t border-neutral-200 pt-4">
             <Link
               href={`/messages/${product.sellerId}?name=${encodeURIComponent(product.sellerUsername)}`}
-              className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+              className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 btn-touch text-sm font-semibold text-white transition-colors hover:bg-brand-700"
             >
               Message seller
             </Link>
@@ -304,7 +304,7 @@ export default function ProductDetail({ id }: { id: string }) {
                 <button
                   onClick={requestToBuy}
                   disabled={buyBusy}
-                  className="mt-3 w-full rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-50"
+                  className="mt-3 w-full rounded-lg bg-brand-600 px-4 py-2 btn-touch text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-50"
                 >
                   {buyBusy ? "Sending…" : "Request to buy"}
                 </button>
@@ -406,7 +406,7 @@ export default function ProductDetail({ id }: { id: string }) {
             <div className="flex flex-wrap gap-2">
               <Link
                 href={`/products/${product.id}/edit`}
-                className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700"
+                className="rounded-lg bg-neutral-900 px-4 py-2 btn-touch text-sm font-medium text-white hover:bg-neutral-700"
               >
                 Edit listing
               </Link>
@@ -414,7 +414,7 @@ export default function ProductDetail({ id }: { id: string }) {
                 <button
                   onClick={() => setConfirming("sold")}
                   disabled={busy}
-                  className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
+                  className="rounded-lg border border-neutral-300 bg-white px-4 py-2 btn-touch text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
                 >
                   Mark as sold
                 </button>
@@ -422,7 +422,7 @@ export default function ProductDetail({ id }: { id: string }) {
               <button
                 onClick={() => setConfirming("delete")}
                 disabled={busy}
-                className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+                className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 btn-touch text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
               >
                 Delete
               </button>
