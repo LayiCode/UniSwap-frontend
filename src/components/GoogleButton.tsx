@@ -9,14 +9,16 @@ import { api } from "@/lib/api";
 // back to /auth/callback?token=... on success.
 //
 // The Render free tier sleeps after inactivity, so the auth config request can
-// fail transiently on a cold start. Instead of hiding the button on the first
-// failure, we retry with a short backoff so the button still appears once the
-// backend wakes up.
+// fail transiently on a cold start. To avoid the button appearing only after a
+// long delay, we render it immediately on first paint and make it tappable as
+// soon as the URL arrives. The only case that hides it is a definitive
+// "Google not configured" response (local dev).
 const MAX_ATTEMPTS = 5;
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export default function GoogleButton() {
   const [url, setUrl] = useState<string | null>(null);
+  const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -25,18 +27,18 @@ export default function GoogleButton() {
         try {
           const config = await api.getAuthConfig();
           if (cancelled) return;
-          setUrl(
-            config.googleEnabled ? config.googleAuthorizationUrl : null,
-          );
+          if (config.googleEnabled) {
+            setUrl(config.googleAuthorizationUrl);
+          } else {
+            // Only a definitive response hides the button.
+            setHidden(true);
+          }
           return;
         } catch {
           if (cancelled) return;
-          // Give up after the final failed attempt; a definitive non-200 (e.g.
-          // dev without OAuth) is never reached because those return normally.
-          if (attempt >= MAX_ATTEMPTS - 1) {
-            setUrl(null);
-            return;
-          }
+          // Network/cold-start failures never hide the button; keep retrying,
+          // and if the backend stays down leave it rendered but inert.
+          if (attempt >= MAX_ATTEMPTS - 1) return;
           await wait(1000 * Math.pow(2, attempt));
         }
       }
@@ -46,12 +48,23 @@ export default function GoogleButton() {
     };
   }, []);
 
-  if (!url) return null;
+  if (hidden) return null;
+
+  const active = !!url;
 
   return (
     <a
-      href={url}
-      className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white px-4 py-3 font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
+      href={active ? url : undefined}
+      onClick={(e) => {
+        if (!active) e.preventDefault();
+      }}
+      aria-disabled={!active}
+      aria-busy={!active}
+      className={`flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white px-4 py-3 font-semibold text-neutral-700 transition-colors ${
+        active
+          ? "cursor-pointer hover:bg-neutral-50"
+          : "cursor-not-allowed opacity-80"
+      }`}
     >
       <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
         <path
