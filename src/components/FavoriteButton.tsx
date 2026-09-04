@@ -14,11 +14,14 @@ export default function FavoriteButton({
   productId,
   favorited: initiallyFavorited = false,
   className = "",
+  size = 11,
   onFavoritedChange,
 }: {
   productId: number;
   favorited?: boolean;
   className?: string;
+  /** Tailwind `size-*` scale for the button (and its heart icon). */
+  size?: 8 | 9 | 11;
   onFavoritedChange?: (favorited: boolean) => void;
 }) {
   const { user } = useAuth();
@@ -58,12 +61,20 @@ export default function FavoriteButton({
       disabled={busy}
       aria-label={favorited ? "Remove from favorites" : "Save to favorites"}
       aria-pressed={favorited}
-      className={`grid size-11 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition-colors hover:bg-white disabled:opacity-60 ${className}`}
+      className={`grid place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition-colors hover:bg-white disabled:opacity-60 ${
+        size === 8 ? "size-8" : size === 9 ? "size-9" : "size-11"
+      } ${className}`}
     >
       <svg
         viewBox="0 0 24 24"
         aria-hidden="true"
-        className={`size-5 transition-colors ${
+        className={`transition-colors ${
+          size === 8
+            ? "size-4"
+            : size === 9
+              ? "size-[18px]"
+              : "size-5"
+        } ${
           favorited ? "fill-brand-600 text-brand-600" : "fill-none text-neutral-600"
         }`}
       >

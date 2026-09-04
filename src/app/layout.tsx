@@ -36,10 +36,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <Navbar />
           <WakingBanner />
-          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+          <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-24 pt-8">
             <ErrorBoundary>{children}</ErrorBoundary>
           </main>
-          <footer className="border-t border-neutral-200 py-6">
+          <footer className="border-t border-neutral-200 py-6 pb-24">
             <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 text-xs text-neutral-400 sm:flex-row">
               <p>UniSwap — a campus marketplace for students</p>
               <div className="flex items-center gap-4">

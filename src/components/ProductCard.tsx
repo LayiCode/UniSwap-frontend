@@ -23,20 +23,21 @@ export default function ProductCard({
       <FavoriteButton
         productId={product.id}
         favorited={product.favorited}
-        className="absolute right-2 top-2 z-10"
+        size={8}
+        className="absolute right-1.5 top-1.5 z-10"
         onFavoritedChange={(favorited) => onFavoritedChange?.(product.id, favorited)}
       />
       <Link
         href={`/products/${product.id}`}
         className="flex flex-1 flex-col"
       >
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-100">
+        <div className="relative aspect-[1/1] w-full overflow-hidden bg-neutral-100">
           {img ? (
             <Image
               src={img}
               alt={product.title}
               fill
-              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 100vw"
+              sizes="(min-width: 1024px) 20vw, (min-width: 640px) 25vw, 100vw"
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
@@ -45,43 +46,17 @@ export default function ProductCard({
             </div>
           )}
           {product.status === "SOLD" && (
-            <span className="absolute left-2 top-2 rounded bg-neutral-900 px-2 py-0.5 text-xs font-semibold text-white">
+            <span className="absolute left-1.5 top-1.5 rounded bg-neutral-900 px-1.5 py-0.5 text-[10px] font-semibold text-white">
               SOLD
             </span>
           )}
           {product.status === "REMOVED" && (
-            <span className="absolute left-2 top-2 rounded bg-red-700 px-2 py-0.5 text-xs font-semibold text-white">
+            <span className="absolute left-1.5 top-1.5 rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-semibold text-white">
               REMOVED
             </span>
           )}
-        </div>
-        <div className="flex flex-1 flex-col gap-1 p-4">
-          <div className="flex items-center justify-between gap-2">
-            <span className="truncate text-xs font-medium text-neutral-500">
-              {product.category}
-            </span>
-            <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">
-              {product.itemCondition}
-            </span>
-          </div>
-          <h3 className="line-clamp-2 font-medium text-neutral-900">
-            {product.title}
-          </h3>
-          <p className="mt-auto pt-2 text-lg font-semibold text-brand-700">
-            {formatPrice(product.price)}
-          </p>
-          <div className="flex items-center gap-2 text-xs text-neutral-500">
-            <Avatar
-              src={product.sellerAvatarUrl}
-              name={product.sellerDisplayName}
-              size={20}
-            />
-            <span className="truncate">
-              by {product.sellerDisplayName || product.sellerUsername}
-            </span>
-          </div>
           {product.location && (
-            <p className="flex items-center gap-1 text-xs text-neutral-500">
+            <span className="absolute bottom-1.5 left-1.5 flex max-w-[85%] items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium text-neutral-700 backdrop-blur">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -96,8 +71,34 @@ export default function ProductCard({
                 <circle cx="12" cy="10" r="3" />
               </svg>
               <span className="truncate">{product.location}</span>
-            </p>
+            </span>
           )}
+        </div>
+        <div className="flex flex-1 flex-col gap-1 p-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="truncate text-[11px] font-medium text-neutral-500">
+              {product.category}
+            </span>
+            <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] text-neutral-600">
+              {product.itemCondition}
+            </span>
+          </div>
+          <h3 className="line-clamp-2 text-sm font-medium text-neutral-900">
+            {product.title}
+          </h3>
+          <p className="mt-auto pt-1.5 text-base font-semibold text-brand-700">
+            {formatPrice(product.price)}
+          </p>
+          <div className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+            <Avatar
+              src={product.sellerAvatarUrl}
+              name={product.sellerDisplayName}
+              size={16}
+            />
+            <span className="truncate">
+              by {product.sellerDisplayName || product.sellerUsername}
+            </span>
+          </div>
         </div>
       </Link>
     </div>
