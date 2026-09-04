@@ -7,20 +7,40 @@ import { api } from "@/lib/api";
 // client is configured (dev environments don't have one). Clicking leaves the
 // frontend and starts the OAuth dance on the backend origin; the browser comes
 // back to /auth/callback?token=... on success.
+//
+// The Render free tier sleeps after inactivity, so the auth config request can
+// fail transiently on a cold start. Instead of hiding the button on the first
+// failure, we retry with a short backoff so the button still appears once the
+// backend wakes up.
+const MAX_ATTEMPTS = 5;
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 export default function GoogleButton() {
   const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    api
-      .getAuthConfig()
-      .then((config) => {
-        if (cancelled) return;
-        setUrl(config.googleEnabled ? config.googleAuthorizationUrl : null);
-      })
-      .catch(() => {
-        if (!cancelled) setUrl(null);
-      });
+    (async () => {
+      for (let attempt = 0; attempt < MAX_ATTEMPTS && !cancelled; attempt++) {
+        try {
+          const config = await api.getAuthConfig();
+          if (cancelled) return;
+          setUrl(
+            config.googleEnabled ? config.googleAuthorizationUrl : null,
+          );
+          return;
+        } catch {
+          if (cancelled) return;
+          // Give up after the final failed attempt; a definitive non-200 (e.g.
+          // dev without OAuth) is never reached because those return normally.
+          if (attempt >= MAX_ATTEMPTS - 1) {
+            setUrl(null);
+            return;
+          }
+          await wait(1000 * Math.pow(2, attempt));
+        }
+      }
+    })();
     return () => {
       cancelled = true;
     };
